@@ -1,0 +1,3501 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trade Hub | منصة تداول ذكية بمعايير عالمية</title>
+<meta name="description" content="Trade Hub منصة تداول ذكية بواجهة عربية: إشارات لحظية، تحليل متعدد الأسواق، إدارة مخاطر دقيقة.">
+<meta name="theme-color" content="#03060e">
+<link rel="icon" type="image/png" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Changa:wght@400;500;600;700;800&family=Tajawal:wght@400;500;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<!-- Animation Libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+/* ─── TOKENS ───────────────────────────────────── */
+:root {
+  --bg:        #03060e;
+  --bg2:       #060b18;
+  --surface:   rgba(8,14,26,.82);
+  --border:    rgba(255,255,255,.08);
+  --border2:   rgba(99,160,255,.22);
+  --text:      #e8eff8;
+  --muted:     #7a92b4;
+  --green:     #00e5a0;
+  --green-dim: rgba(0,229,160,.12);
+  --blue:      #3d8bff;
+  --blue-dim:  rgba(61,139,255,.12);
+  --red:       #ff4e6a;
+  --red-dim:   rgba(255,78,106,.12);
+  --gold:      #f5a623;
+  --r:         16px;
+  --rr:        999px;
+  --max:       1160px;
+  --mono:      'Changa', sans-serif;
+  --head:      'Changa', sans-serif;
+  --body:      'Tajawal', sans-serif;
+}
+
+/* ─── RESET ─────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;overflow-x:clip}
+body{
+  font-family:var(--body);
+  color:var(--text);
+  background:var(--bg);
+  min-height:100vh;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+a,button{-webkit-tap-highlight-color:transparent}
+img{display:block;max-width:100%;-webkit-user-drag:none;}
+h1,h2,h3,h4{font-family:var(--head);margin:0;line-height:1.15}
+p{line-height:1.8}
+ul{list-style:none}
+
+/* ─── CANVAS BACKGROUND ──────────────────────── */
+#bg-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ─── SCROLL PROGRESS ────────────────────────────── */
+.scroll-bar{
+  position:fixed;top:0;left:0;height:2px;width:0;z-index:100;
+  background:linear-gradient(90deg,var(--blue),var(--green));
+  transition:width .1s linear;
+}
+
+/* ─── CONTAINER ──────────────────────────────────── */
+.wrap{
+  position:relative;z-index:1;
+  width:min(100% - 40px, var(--max));
+  margin-inline:auto;
+}
+
+/* ══════════════════════════════════════════════════
+   HEADER
+══════════════════════════════════════════════════ */
+.site-header{
+  position:sticky;top:0;z-index:80;
+  background:rgba(3,6,14,.72);
+  backdrop-filter:blur(16px) saturate(140%);
+  border-bottom:1px solid var(--border);
+}
+.header-inner{
+  display:flex;align-items:center;gap:16px;
+  min-height:72px;
+}
+
+/* Logo */
+.logo{
+  display:inline-flex;align-items:center;gap:10px;
+  text-decoration:none;color:var(--text);
+  font-family:var(--head);font-size:1.3rem;font-weight:800;
+  flex-shrink:0;
+}
+.logo-icon{
+  width:40px;height:40px;border-radius:10px;overflow:hidden;
+  border:1px solid var(--border2);
+  background:linear-gradient(135deg,rgba(61,139,255,.2),rgba(0,229,160,.15));
+  display:grid;place-items:center;flex-shrink:0;
+}
+.logo-icon img{width:100%;height:100%;object-fit:cover}
+.logo-icon-fallback{color:var(--blue);font-size:1.1rem}
+
+/* Desktop Nav */
+.nav{display:flex;align-items:center;gap:4px;margin-inline-start:auto}
+.nav a{
+  color:var(--muted);text-decoration:none;font-weight:700;font-size:.9rem;
+  padding:8px 14px;border-radius:var(--rr);
+  transition:color .2s,background .2s;
+}
+.nav a:hover{color:var(--text);background:rgba(255,255,255,.06)}
+
+.lang-switcher{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:4px 6px;
+  border-radius:var(--rr);
+  border:1px solid var(--border);
+  background:rgba(255,255,255,.03);
+  flex-shrink:0;
+}
+.lang-btn{
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  border:1px solid transparent;
+  background:rgba(255,255,255,.04);
+  display:grid;
+  place-items:center;
+  font-family:var(--mono);
+  font-size:.66rem;
+  font-weight:500;
+  letter-spacing:.4px;
+  color:#9fb3cf;
+  text-transform:uppercase;
+  line-height:1;
+  cursor:pointer;
+  transition:border-color .2s,transform .2s,background .2s,box-shadow .2s;
+}
+.lang-btn:hover{
+  transform:translateY(-1px);
+  border-color:var(--border2);
+  background:rgba(61,139,255,.12);
+  color:var(--text);
+}
+.lang-btn.is-active{
+  border-color:rgba(0,229,160,.35);
+  background:rgba(0,229,160,.14);
+  box-shadow:0 6px 14px rgba(0,229,160,.18);
+  color:#dffff3;
+}
+.lang-btn:focus-visible{
+  outline:2px solid rgba(61,139,255,.6);
+  outline-offset:2px;
+}
+
+.header-cta{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:9px 20px;border-radius:var(--rr);
+  background:var(--green);color:#021a0e;
+  font-weight:800;font-size:.88rem;text-decoration:none;
+  transition:transform .2s,box-shadow .2s;
+  flex-shrink:0;
+}
+.header-cta:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(0,229,160,.28)}
+
+/* ══════════════════════════════════════════════════
+   HERO
+══════════════════════════════════════════════════ */
+.hero{padding:20px 0 10px;position:relative;overflow:clip}
+#hero-canvas {
+  position:absolute;
+  inset:0;
+  z-index:0;
+  opacity: 0.6;
+  pointer-events:none;
+  background: radial-gradient(circle at 70% 30%, rgba(61,139,255,0.05) 0%, transparent 60%);
+}
+
+/* Grid: text left, phones right */
+.hero-layout{
+  display:grid;
+  grid-template-columns:1fr 480px;
+  gap:25px;align-items:center;
+}
+
+/* Text side */
+.hero-tag{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:4px 10px;border-radius:var(--rr);
+  border:1px solid rgba(0,229,160,.3);
+  background:rgba(0,229,160,.08);
+  color:var(--green);font-weight:800;font-size:.78rem;
+  margin-bottom:10px;
+}
+.hero-tag .dot{width:6px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(0,229,160,.5)}70%{box-shadow:0 0 0 8px rgba(0,229,160,0)}}
+
+.hero h1{
+  font-size:clamp(2.2rem,4.5vw,3.5rem);
+  line-height:1.1;
+  margin-bottom:10px;
+  letter-spacing:-.5px;
+  position: relative;
+}
+.hero h1 em{
+  font-style:normal;
+  background:linear-gradient(to right, #00e5a0, #3d8bff, #8b5cf6, #00e5a0);
+  background-size: 300% auto;
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  animation: shineText 4s linear infinite;
+  display: inline-block;
+}
+@keyframes shineText {
+  to { background-position: 300% center; }
+}
+.hero-desc{
+  color:var(--muted);font-size:.98rem;line-height:1.65;
+  max-width:480px;margin-bottom:18px;
+}
+
+.hero-btns{display:flex;gap:10px;flex-wrap:wrap}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:10px 22px;border-radius:var(--rr);
+  font-weight:800;font-size:.9rem;text-decoration:none;
+  cursor:pointer;border:0;transition:transform .22s,box-shadow .22s;
+}
+.btn-primary{
+  background:linear-gradient(120deg,var(--blue),var(--green));
+  color:#fff;
+  box-shadow:0 10px 22px rgba(61,139,255,.2);
+}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 14px 28px rgba(61,139,255,.3)}
+.btn-ghost{
+  background:rgba(255,255,255,.05);
+  border:1px solid var(--border);color:var(--text);
+}
+.btn-ghost:hover{background:rgba(255,255,255,.09);transform:translateY(-2px)}
+
+/* Phone showcase side */
+.phones-wrap{
+  position:relative;
+  height:530px;
+  perspective:1200px;
+}
+
+/* Individual phone */
+.ph{
+  position:absolute;
+  width:225px;
+  top:50%;left:50%;
+  transform-origin:center;
+  transition:all .55s cubic-bezier(.34,1.4,.64,1);
+  cursor:pointer;
+}
+/* Center phone */
+.ph-c{
+  transform:translate(-50%,-50%) translateZ(0) scale(1);
+  z-index:10;filter:drop-shadow(0 35px 60px rgba(0,0,0,.6));
+}
+/* Side phones */
+.ph-l{
+  transform:translate(-50%,-50%) translateX(-135px) translateZ(-90px) rotateY(22deg) scale(.84);
+  z-index:5;opacity:.65;filter:drop-shadow(0 20px 35px rgba(0,0,0,.45));
+}
+.ph-r{
+  transform:translate(-50%,-50%) translateX(135px) translateZ(-90px) rotateY(-22deg) scale(.84);
+  z-index:5;opacity:.65;filter:drop-shadow(0 20px 35px rgba(0,0,0,.45));
+}
+
+/* Phone shell */
+.phone-shell{
+  width:100%;
+  aspect-ratio:9/19.5;
+  border-radius:32px;
+  background:linear-gradient(160deg,#0b1527,#060c1a);
+  border:1.5px solid rgba(100,145,220,.35);
+  padding:9px;
+  display:flex;flex-direction:column;
+  overflow:hidden;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.04) inset,
+    0 28px 48px rgba(0,0,10,.6);
+  position:relative;
+}
+.phone-shell::before{
+  content:'';position:absolute;inset:0;border-radius:inherit;
+  background:
+    radial-gradient(circle at 80% 10%,rgba(0,229,160,.1),transparent 38%),
+    radial-gradient(circle at 15% 85%,rgba(61,139,255,.1),transparent 38%);
+  pointer-events:none;
+}
+
+/* Phone inner screen */
+.p-screen{
+  flex:1;border-radius:22px;overflow:hidden;
+  background:linear-gradient(180deg,#070d1c,#050a16);
+  border:1px solid rgba(80,120,190,.25);
+  display:flex;flex-direction:column;
+  position:relative;
+}
+
+/* ── Screen: SIGNALS (center phone) ── */
+.p-topbar{
+  display:grid;grid-template-columns:32px 1fr 32px;
+  gap:6px;align-items:center;padding:10px 10px 0;
+  flex-shrink:0;
+}
+.p-icon-btn{
+  width:32px;height:32px;border-radius:9px;
+  border:1px solid rgba(100,140,200,.3);
+  background:rgba(6,11,22,.8);
+  color:#c8dcf5;display:grid;place-items:center;font-size:.72rem;
+}
+.p-icon-btn.active{
+  color:#3fffd0;border-color:rgba(63,255,208,.4);
+  background:radial-gradient(circle at 40% 30%,rgba(40,200,160,.22),rgba(10,25,40,.85));
+}
+.p-title{
+  text-align:center;font-family:var(--head);font-size:.72rem;
+  letter-spacing:2px;text-transform:uppercase;color:var(--green);
+}
+
+.p-tabs{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:3px;padding:8px 10px 0;flex-shrink:0;
+}
+.p-tab{
+  border-radius:9px;height:26px;display:grid;place-items:center;
+  font-family:var(--head);font-size:.6rem;letter-spacing:.5px;
+  color:#8aa0c0;border:1px solid transparent;
+}
+.p-tab.on{
+  color:#d5fff3;border-color:rgba(60,210,170,.4);
+  background:linear-gradient(130deg,rgba(20,140,110,.28),rgba(10,65,115,.2));
+}
+
+.p-live{
+  display:grid;grid-template-columns:28px 1fr 28px;
+  gap:5px;align-items:center;padding:6px 10px 0;flex-shrink:0;
+}
+.p-live-btn{
+  width:28px;height:28px;border-radius:50%;
+  border:1px solid rgba(100,130,180,.3);
+  background:rgba(6,11,22,.8);color:#b0c4e0;
+  display:grid;place-items:center;font-size:.65rem;
+}
+.p-live-pill{
+  height:30px;border-radius:var(--rr);
+  border:1px solid rgba(100,130,180,.25);
+  background:rgba(6,11,22,.8);
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  font-family:var(--mono);font-size:.58rem;color:#8fa8cc;
+}
+.p-live-pill strong{color:#eef5ff;font-size:.62rem}
+.p-live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px rgba(0,229,160,.6);flex-shrink:0}
+
+.p-section-hd{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:6px 10px 0;flex-shrink:0;
+}
+.p-section-hd span:first-child{font-size:.6rem;color:#cdd8ee;font-family:var(--head)}
+.p-section-hd span:last-child{
+  font-size:.52rem;color:#6f8aac;
+  padding:2px 6px;background:rgba(70,90,125,.25);border-radius:var(--rr);
+}
+
+.p-cards{
+  flex:1;overflow:hidden;display:flex;flex-direction:column;
+  gap:5px;padding:6px 8px;
+}
+.p-card{
+  border-radius:10px;padding:6px 7px;display:grid;gap:5px;
+  border:1px solid rgba(120,150,195,.22);flex-shrink:0;
+}
+.p-card.sell{
+  background:linear-gradient(145deg,rgba(80,25,45,.7),rgba(42,20,42,.6));
+  border-color:rgba(210,75,120,.28);
+}
+.p-card.buy{
+  background:linear-gradient(145deg,rgba(20,75,65,.65),rgba(16,50,68,.55));
+  border-color:rgba(55,205,165,.28);
+}
+
+.p-card-top{
+  display:grid;grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;gap:5px;
+}
+.p-card-pair{
+  font-family:var(--head);font-size:.68rem;color:#f0f6ff;
+  direction:ltr;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.p-card-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 7px;border-radius:var(--rr);
+  font-family:var(--head);font-size:.55rem;flex-shrink:0;
+}
+.p-card-badge.sell{color:#3a0818;background:linear-gradient(120deg,#ff5c85,#e02255)}
+.p-card-badge.buy{color:#021f18;background:linear-gradient(120deg,#2dffc2,#09d89b)}
+
+.p-card-row{
+  display:grid;grid-template-columns:auto 1fr;
+  gap:5px;align-items:center;
+}
+.p-dir-btn{
+  padding:4px 8px;border-radius:8px;border:1px solid;
+  font-family:var(--head);font-size:.55rem;
+  display:inline-flex;align-items:center;gap:4px;
+}
+.p-dir-btn.sell{color:var(--red);border-color:rgba(255,78,106,.5);background:rgba(255,78,106,.1)}
+.p-dir-btn.buy{color:var(--green);border-color:rgba(0,229,160,.5);background:rgba(0,229,160,.1)}
+.p-entry{text-align:end}
+.p-entry small{display:block;font-size:.5rem;color:#7090b5;margin-bottom:2px}
+.p-entry strong{font-family:var(--mono);font-size:.62rem;color:#f0f6ff;direction:ltr;display:block}
+
+.p-risk{
+  display:grid;grid-template-columns:1fr 1px 1fr;
+  gap:4px;align-items:center;
+  border-radius:7px;background:rgba(15,20,38,.7);padding:5px 7px;
+}
+.p-risk-side small{font-family:var(--head);font-size:.5rem;display:block;margin-bottom:2px}
+.p-risk-side.tp small{color:var(--green)}
+.p-risk-side.sl small{color:var(--red)}
+.p-risk-side strong{font-family:var(--mono);font-size:.6rem;color:#e8f4ff;direction:ltr;display:block}
+.p-risk-div{background:rgba(255,255,255,.15);height:20px;width:1px}
+
+/* Phone dock */
+.p-dock{
+  flex-shrink:0;height:28px;margin:0 6px 6px;
+  border-radius:var(--rr);border:1px solid rgba(20,200,160,.28);
+  background:rgba(3,7,16,.95);
+  display:grid;grid-template-columns:repeat(6,1fr);
+  align-items:center;padding:0 6px;
+}
+.p-dock i{text-align:center;color:#5a6e88;font-size:.62rem}
+.p-dock i.on{color:var(--green);text-shadow:0 0 10px rgba(0,229,160,.4)}
+
+/* ── HOME screen ── */
+.ph-greeting{padding:8px 10px 4px;flex-shrink:0}
+.ph-greeting small{color:#5c728a;font-size:.52rem;font-weight:700;display:block;margin-bottom:2px}
+.ph-greeting strong{font-family:var(--head);font-size:.82rem;color:#e8f3ff}
+
+.ph-news{
+  margin:0 8px;border-radius:9px;
+  border:1px solid rgba(50,190,155,.22);
+  background:linear-gradient(120deg,rgba(6,28,30,.9),rgba(8,28,36,.8));
+  min-height:32px;display:grid;grid-template-columns:auto 1fr;
+  align-items:center;gap:7px;padding:0 8px;flex-shrink:0;
+}
+.ph-news b{
+  font-size:.5rem;color:#e84080;
+  padding:2px 5px;border-radius:5px;
+  background:rgba(80,15,40,.7);border:1px solid rgba(232,64,128,.28);
+}
+.ph-news p{font-size:.52rem;color:#c0d4ec;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.ph-market{
+  margin:6px 8px 0;border-radius:10px;
+  border:1px solid rgba(200,130,20,.35);
+  background:linear-gradient(150deg,rgba(80,46,5,.9),rgba(42,26,5,.9));
+  padding:7px;display:grid;gap:6px;flex-shrink:0;
+}
+.ph-market-hd{display:grid;grid-template-columns:28px 1fr;gap:7px;align-items:center}
+.ph-mkt-icon{
+  width:28px;height:28px;border-radius:8px;
+  display:grid;place-items:center;color:var(--gold);font-size:.72rem;
+  background:rgba(110,72,12,.6);border:1px solid rgba(220,145,30,.25);
+}
+.ph-mkt-hd-txt strong{font-size:.7rem;color:#f5a020;font-family:var(--head)}
+.ph-mkt-hd-txt small{font-size:.5rem;color:#8a7a6a;display:block}
+
+.ph-market-cols{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.ph-mkt-col{border-radius:8px;border:1px solid;padding:5px 6px;display:grid;gap:3px}
+.ph-mkt-col.up{background:rgba(15,60,25,.45);border-color:rgba(30,175,90,.3)}
+.ph-mkt-col.dn{background:rgba(80,20,20,.35);border-color:rgba(220,70,70,.28)}
+.ph-mkt-col h5{font-size:.52rem;font-family:var(--head)}
+.ph-mkt-col.up h5{color:#28d87a}
+.ph-mkt-col.dn h5{color:#ff6056}
+.ph-mkt-col ul{display:grid;gap:2px;font-size:.5rem;font-weight:700;color:#e8f0ff}
+
+.ph-cta{
+  margin:0 8px;min-height:26px;border-radius:8px;
+  border:1px solid rgba(40,210,160,.38);
+  background:linear-gradient(140deg,rgba(3,60,52,.7),rgba(3,45,42,.7));
+  display:flex;align-items:center;justify-content:center;
+  gap:5px;color:#d8fff4;font-family:var(--head);font-size:.55rem;
+  flex-shrink:0;
+}
+
+.ph-sect-ttl{
+  text-align:center;font-family:var(--head);font-size:.6rem;
+  color:#bcc8e0;padding:4px;flex-shrink:0;
+}
+
+/* ── BINARY screen ── */
+.p-binary-hd{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:6px 10px 0;flex-shrink:0;
+}
+.p-binary-hd h4{font-size:.65rem;color:#eef3ff;font-family:var(--head)}
+.p-binary-chip{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:.5rem;color:#00e5c8;
+  padding:2px 6px;border-radius:var(--rr);
+  border:1px solid rgba(0,229,200,.35);
+  background:rgba(0,80,70,.35);
+  font-family:var(--head);
+}
+
+.p-binary-cards{flex:1;overflow:hidden;display:flex;flex-direction:column;gap:5px;padding:6px 8px}
+.p-bin-card{
+  border-radius:10px;padding:6px 7px;display:grid;gap:5px;flex-shrink:0;
+}
+.p-bin-card.put{
+  background:linear-gradient(150deg,rgba(75,28,48,.88),rgba(42,22,42,.85));
+  border:1px solid rgba(240,55,110,.35);
+}
+.p-bin-card.call{
+  background:linear-gradient(150deg,rgba(18,70,62,.82),rgba(18,50,68,.8));
+  border:1px solid rgba(35,220,185,.35);
+}
+
+.p-bin-top{
+  display:grid;grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;gap:5px;direction:ltr;
+}
+.p-bin-top h5{
+  font-family:var(--head);font-size:.7rem;color:#eef5ff;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.p-bin-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:4px 9px;border-radius:var(--rr);
+  font-family:var(--head);font-size:.6rem;flex-shrink:0;
+}
+.p-bin-badge.put{color:#280810;background:#ff2c72;box-shadow:0 6px 16px rgba(255,44,114,.3)}
+.p-bin-badge.call{color:#021e18;background:#20efc5;box-shadow:0 6px 16px rgba(32,239,197,.28)}
+
+.p-bin-meta{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.p-bin-item{
+  border-radius:8px;border:1px solid rgba(140,165,205,.18);
+  background:rgba(35,42,62,.38);padding:5px 6px;display:grid;gap:2px;
+}
+.p-bin-item small{color:#8aabce;font-size:.5rem;font-weight:700}
+.p-bin-item strong{font-family:var(--head);font-size:.65rem;color:#f0f6ff;direction:ltr;display:block}
+
+/* Nav arrows */
+.ph-nav-btn{
+  position:absolute;top:50%;
+  width:36px;height:36px;border-radius:50%;
+  border:1px solid rgba(130,170,230,.45);
+  background:rgba(6,12,24,.88);color:#c8dcf5;
+  display:grid;place-items:center;font-size:.75rem;
+  cursor:pointer;z-index:15;
+  transition:all .2s;transform:translateY(-50%);
+}
+.ph-nav-btn:hover{background:rgba(20,36,60,.95);border-color:rgba(80,140,255,.7);box-shadow:0 0 18px rgba(61,139,255,.25)}
+.ph-prev{left:0}
+.ph-next{right:0}
+
+/* Under-phone buttons (mobile) */
+.hero-btns-mob{display:none}
+
+/* ══════════════════════════════════════════════════
+   STATS BAR
+══════════════════════════════════════════════════ */
+.stats-bar{padding:20px 0 10px;border-top:1px solid var(--border)}
+.stats-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:16px;
+}
+.stat-card{
+  padding:16px 14px;border-radius:var(--r);
+  background:var(--surface);border:1px solid var(--border);
+  backdrop-filter:blur(10px);
+}
+.stat-num{
+  font-family:var(--head);font-size:1.85rem;font-weight:800;
+  color:var(--blue);line-height:1;margin-bottom:4px;
+}
+.stat-lbl{color:var(--muted);font-weight:700;font-size:.82rem;line-height:1.4}
+
+/* ══════════════════════════════════════════════════
+   TRUST BADGES
+══════════════════════════════════════════════════ */
+.trust{padding:8px 0 12px}
+.trust p{text-align:center;color:var(--muted);font-weight:700;margin-bottom:8px;font-size:.82rem}
+.trust-row{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.trust-badge{
+  padding:5px 12px;border-radius:var(--rr);
+  border:1px solid var(--border);background:rgba(8,14,26,.6);
+  color:var(--muted);font-weight:700;font-size:.78rem;
+  transition:border-color .2s,color .2s;
+}
+.trust-badge:hover{border-color:var(--border2);color:var(--text)}
+
+/* ══════════════════════════════════════════════════
+   SECTION SHARED
+══════════════════════════════════════════════════ */
+section{padding:15px 0}
+.sec-hd{text-align:center;margin-bottom:28px}
+.sec-hd h2{font-size:clamp(1.7rem,3.5vw,2.5rem);margin-bottom:8px;letter-spacing:-.4px}
+.sec-hd p{color:var(--muted);font-size:.92rem;max-width:640px;margin-inline:auto}
+
+/* ══════════════════════════════════════════════════
+   GLOBAL
+══════════════════════════════════════════════════ */
+.global-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.world-card{
+  border-radius:var(--r);border:1px solid var(--border);
+  background:linear-gradient(180deg,rgba(10,17,30,.95),rgba(7,13,24,.88));
+  padding:26px;
+}
+.world-card h3{font-size:1.1rem;margin-bottom:10px}
+.world-card>p{color:var(--muted);line-height:1.75;margin-bottom:14px}
+
+.tag-row{display:flex;flex-wrap:wrap;gap:7px}
+.tag{
+  padding:5px 11px;border-radius:var(--rr);font-size:.82rem;
+  background:var(--blue-dim);border:1px solid rgba(61,139,255,.3);
+  color:#9ec8ff;font-weight:700;
+}
+
+.tz-list{display:grid;gap:7px}
+.tz-item{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:8px 12px;border-radius:10px;
+  border:1px solid rgba(140,170,210,.18);
+  background:rgba(61,139,255,.08);font-weight:700;
+}
+.tz-item span{font-size:.88rem;color:var(--muted)}
+.tz-item strong{
+  font-family:var(--head);font-size:.88rem;color:var(--green);
+  display:inline-flex;align-items:center;gap:5px;
+}
+
+/* ══════════════════════════════════════════════════
+   FEATURES
+══════════════════════════════════════════════════ */
+#features {
+  position: relative;
+  z-index: 5;
+  overflow: hidden;
+  padding: 60px 0;
+}
+.feat-scroll-container {
+  overflow: hidden;
+  padding: 20px 0 40px;
+  cursor: grab;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* IE/Edge */
+}
+.feat-scroll-container::-webkit-scrollbar {
+  display: none; /* Chrome/Safari/Opera */
+}
+.feat-grid {
+  position: relative;
+  width: 100%;
+  min-height: 220px;
+  will-change: transform;
+}
+.feat-card {
+  width: 320px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 26px 22px;
+  border-radius: 22px;
+  border: 1px solid rgba(255,255,255,.08);
+  background: rgba(10, 18, 32, 0.85);
+  backdrop-filter: blur(15px);
+  position: absolute;
+  overflow: hidden;
+  transition: top 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+  min-height: 190px;
+  left: 0;
+  top: 0;
+}
+.feat-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(61,139,255,0.08), transparent);
+  pointer-events: none;
+}
+.feat-card:hover {
+  top: -10px;
+  border-color: rgba(61,139,255,0.4);
+  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6);
+}
+.feat-icon{
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 16px;
+  font-size: 1.3rem;
+  color: #fff;
+  background: linear-gradient(135deg, var(--blue), var(--green));
+  box-shadow: 0 8px 20px rgba(61,139,255,0.3);
+  flex-shrink: 0;
+}
+.feat-card h3{
+  font-size: 1.15rem;
+  margin-bottom: 8px;
+  color: #fff;
+  font-weight: 800;
+}
+.feat-card p{
+  color: #a0aec0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin: 0;
+  flex-grow: 1;
+}
+
+@media(max-width: 768px) {
+  .feat-card { 
+    width: 255px; 
+    padding: 20px 16px; 
+    min-height: 160px;
+  }
+  .feat-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.15rem;
+    border-radius: 10px;
+    margin-bottom: 12px;
+  }
+  .feat-card h3 {
+    font-size: 1.05rem;
+    margin-bottom: 6px;
+  }
+  .feat-card p {
+    font-size: 0.82rem;
+    line-height: 1.5;
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   GLOBAL EXCHANGE INTEGRATION
+══════════════════════════════════════════════════ */
+.exchanges {
+  padding: 80px 0;
+  position: relative;
+}
+.exchange-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  margin-top: 40px;
+}
+.exchange-card {
+  height: 110px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 25px;
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
+  overflow: hidden;
+}
+.exchange-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(61, 139, 255, 0.1), transparent);
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+.exchange-card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(61, 139, 255, 0.4);
+  background: rgba(10, 20, 40, 0.8);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(61, 139, 255, 0.1);
+}
+.exchange-card:hover::before {
+  opacity: 1;
+}
+.exchange-logo {
+  width: 100%;
+  height: 100%;
+  max-width: 130px;
+  max-height: 45px;
+  object-fit: contain;
+  filter: grayscale(1) brightness(1.2) opacity(0.6);
+  transition: all 0.4s ease;
+  z-index: 2;
+}
+.exchange-card:hover .exchange-logo {
+  filter: grayscale(0) brightness(1) opacity(1);
+  transform: scale(1.08);
+}
+
+@media(max-width: 1024px) {
+  .exchange-grid { grid-template-columns: repeat(3, 1fr); gap: 20px; }
+}
+@media(max-width: 768px) {
+  .exchange-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .exchange-card { height: 90px; padding: 20px; }
+  .exchange-logo { max-width: 100px; }
+}
+@media(max-width: 480px) {
+  .exchange-grid { gap: 12px; }
+  .exchange-card { border-radius: 14px; padding: 15px; }
+}
+
+/* ══════════════════════════════════════════════════
+   LIVE PERFORMANCE TRACK RECORD
+══════════════════════════════════════════════════ */
+.track-record{padding-top:28px}
+.track-grid{
+  display:grid;
+  grid-template-columns:1.15fr .85fr;
+  gap:16px;
+  align-items:stretch;
+}
+.track-main-card,
+.track-stat-card{
+  border-radius:var(--r);
+  border:1px solid var(--border);
+  background:var(--surface);
+  backdrop-filter:blur(10px);
+  position:relative;
+  overflow:hidden;
+  transition:transform .25s,box-shadow .25s,border-color .25s;
+}
+.track-main-card::before,
+.track-stat-card::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  pointer-events:none;
+  background:linear-gradient(130deg,rgba(61,139,255,.08),rgba(0,229,160,.04) 48%,transparent 70%);
+}
+.track-main-card:hover,
+.track-stat-card:hover{
+  transform:translateY(-4px);
+  border-color:rgba(61,139,255,.35);
+  box-shadow:0 16px 30px rgba(0,0,0,.28),0 0 0 1px rgba(61,139,255,.16) inset;
+}
+.track-main-card{padding:26px}
+.track-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+.track-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  padding:6px 12px;
+  border-radius:var(--rr);
+  font-family:var(--head);
+  font-size:.76rem;
+  color:#d5ebff;
+  border:1px solid rgba(61,139,255,.32);
+  background:rgba(61,139,255,.12);
+}
+.track-badge i{color:var(--green);font-size:.82rem}
+.track-kpi-label{color:var(--muted);font-weight:700;font-size:.92rem;margin-bottom:8px}
+.track-kpi-value{
+  font-family:var(--head);
+  font-size:clamp(2rem,5vw,3rem);
+  letter-spacing:.4px;
+  line-height:1;
+  margin-bottom:14px;
+}
+.track-kpi-value.is-positive{color:var(--green);text-shadow:0 0 20px rgba(0,229,160,.26)}
+
+.track-chart-wrap{
+  border-radius:14px;
+  border:1px solid rgba(120,155,210,.2);
+  background:linear-gradient(180deg,rgba(6,13,24,.95),rgba(4,10,20,.86));
+  padding:10px;
+}
+.track-chart{
+  width:100%;
+  height:200px;
+  display:block;
+}
+.track-gridline{stroke:rgba(110,135,175,.2);stroke-width:1}
+.track-area{fill:url(#trackAreaGradient)}
+.track-line{
+  fill:none;
+  stroke:url(#trackLineGradient);
+  stroke-width:4;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  filter:drop-shadow(0 0 8px rgba(0,229,160,.32));
+}
+.track-point{
+  fill:#d7fff2;
+  stroke:rgba(0,229,160,.55);
+  stroke-width:3;
+}
+
+.track-stats-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+}
+.track-stat-card{
+  min-height:132px;
+  padding:18px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+}
+.track-stat-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.track-stat-icon{
+  width:36px;height:36px;border-radius:10px;
+  display:grid;place-items:center;
+  border:1px solid rgba(61,139,255,.3);
+  background:rgba(61,139,255,.12);
+  color:#9ec8ff;
+  flex-shrink:0;
+}
+.track-stat-head h3{font-size:.95rem;line-height:1.4}
+.track-stat-value{
+  font-family:var(--head);
+  font-size:1.7rem;
+  line-height:1;
+  color:#e8eff8;
+}
+.track-stat-value.is-positive{color:var(--green)}
+.track-stat-card.is-negative .track-stat-icon{
+  color:var(--red);
+  border-color:rgba(255,78,106,.32);
+  background:rgba(255,78,106,.12);
+}
+.track-stat-card.is-negative .track-stat-value{color:var(--red);text-shadow:0 0 16px rgba(255,78,106,.25)}
+
+/* ══════════════════════════════════════════════════
+   TELEGRAM COMMUNITY
+══════════════════════════════════════════════════ */
+.telegram-join{padding:25px 0 10px}
+.telegram-card{
+  position:relative;overflow:hidden;
+  border-radius:24px;
+  border:1px solid rgba(80,170,255,.35);
+  background:
+    radial-gradient(circle at 50% 0%,rgba(42,171,238,.15),transparent 50%),
+    linear-gradient(140deg,rgba(8,18,35,.98),rgba(6,14,28,.95));
+  padding:35px 30px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+  gap:18px;
+  box-shadow:0 20px 40px rgba(0,0,0,.3);
+}
+.telegram-card::after{
+  content:'';position:absolute;inset:0;border-radius:inherit;
+  border:1px solid rgba(169,225,255,.06);
+  pointer-events:none;
+}
+.telegram-copy h2{
+  font-size:clamp(1.4rem,3.5vw,2.2rem);
+  margin-bottom:6px;
+  background:linear-gradient(120deg,#fff,#80c4ff);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.telegram-copy p{
+  color:var(--muted);
+  line-height:1.6;
+  max-width:540px;
+  font-size:0.95rem;
+  margin:0 auto;
+}
+.telegram-btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  padding:12px 32px;border-radius:var(--rr);
+  text-decoration:none;font-weight:800;
+  color:#fff;
+  background:linear-gradient(120deg,#2aabee,#2183f3);
+  border:1px solid rgba(169,225,255,.3);
+  box-shadow:0 8px 20px rgba(42,171,238,.25);
+  transition:all .3s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space:nowrap;
+}
+.telegram-btn i{font-size:1.1rem}
+.telegram-btn:hover{
+  transform:translateY(-3px) scale(1.05);
+  box-shadow:0 12px 28px rgba(42,171,238,.35);
+  filter:brightness(1.1);
+}
+
+/* ══════════════════════════════════════════════════
+   WORKFLOW
+══════════════════════════════════════════════════ */
+.workflow{
+  background:linear-gradient(180deg,rgba(8,14,26,.7),rgba(5,9,18,.2));
+  border-block:1px solid var(--border);
+}
+.steps-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.step-card{
+  padding:22px;border-radius:var(--r);
+  background:rgba(8,15,28,.9);border:1px solid var(--border);
+  position:relative;
+}
+.step-num{
+  width:32px;height:32px;border-radius:9px;
+  display:grid;place-items:center;
+  font-family:var(--head);font-weight:800;font-size:.9rem;color:#fff;
+  background:var(--blue);margin-bottom:12px;
+}
+.step-card h3{font-size:1rem;margin-bottom:8px}
+.step-card p{color:var(--muted);font-size:.88rem;line-height:1.65}
+/* connector line */
+.step-card:not(:last-child)::after{
+  content:'';position:absolute;
+  top:37px;left:-7px;
+  width:14px;height:1px;
+  background:linear-gradient(90deg,var(--border),var(--blue-dim));
+}
+
+/* ══════════════════════════════════════════════════
+   INTERACTIVE VIDEO GUIDE
+══════════════════════════════════════════════════ */
+.video-guide{
+  padding:100px 0;position:relative;overflow:hidden;
+}
+.video-guide::before,.video-guide::after{
+  content:'';position:absolute;border-radius:50%;
+  pointer-events:none;filter:blur(110px);opacity:.2;
+}
+.video-guide::before{
+  width:560px;height:560px;
+  background:radial-gradient(circle,#3d8bff 0%,transparent 70%);
+  top:-140px;left:-100px;
+}
+.video-guide::after{
+  width:460px;height:460px;
+  background:radial-gradient(circle,#00e5a0 0%,transparent 70%);
+  bottom:-100px;right:-80px;
+}
+.video-container{
+  display:flex;flex-direction:column;gap:32px;
+  max-width:960px;margin:0 auto;
+}
+
+/* ── Info tags row (non-clickable) ── */
+.video-info-row{
+  display:flex;flex-wrap:wrap;gap:10px;justify-content:center;
+}
+.video-info-tag{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:9px 20px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:999px;
+  color:var(--muted);
+  font-family:var(--body);font-size:.88rem;font-weight:500;
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  white-space:nowrap;pointer-events:none;user-select:none;
+}
+.video-info-tag i{ color:var(--blue);font-size:.82rem; }
+
+/* ── Glassmorphism card shell ── */
+.video-card{
+  position:relative;border-radius:26px;padding:3px;
+  background:linear-gradient(145deg,
+    rgba(61,139,255,.65) 0%,
+    rgba(0,229,160,.45) 40%,
+    rgba(61,139,255,.12) 70%,
+    rgba(0,229,160,.55) 100%);
+  box-shadow:
+    0 0 0 1px rgba(61,139,255,.08),
+    0 12px 50px rgba(0,0,0,.6),
+    0 0 100px rgba(61,139,255,.14),
+    inset 0 1px 0 rgba(255,255,255,.07);
+}
+.video-card-inner{
+  position:relative;border-radius:24px;overflow:hidden;
+  background:rgba(5,10,22,.8);
+  backdrop-filter:blur(28px) saturate(160%);
+  -webkit-backdrop-filter:blur(28px) saturate(160%);
+}
+
+/* macOS chrome bar */
+.video-chrome{
+  display:flex;align-items:center;gap:8px;
+  padding:14px 18px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  background:rgba(255,255,255,.025);
+}
+.video-chrome-dot{width:11px;height:11px;border-radius:50%}
+.video-chrome-dot:nth-child(1){background:#ff5f57}
+.video-chrome-dot:nth-child(2){background:#febc2e}
+.video-chrome-dot:nth-child(3){background:#28c840}
+.video-chrome-title{
+  margin-right:auto;font-family:var(--mono);
+  font-size:.78rem;color:var(--muted);letter-spacing:.05em;
+}
+
+/* ── Thumbnail CTA ── */
+.video-thumb-card{
+  display:block;position:relative;
+  aspect-ratio:16/9;overflow:hidden;
+  text-decoration:none;cursor:pointer;
+}
+.video-thumb-img{
+  width:100%;height:100%;object-fit:cover;display:block;
+  transition:transform .55s ease,filter .55s ease;
+  filter:brightness(.7) saturate(.85);
+}
+.video-thumb-card:hover .video-thumb-img{
+  transform:scale(1.05);
+  filter:brightness(.45) saturate(.7);
+}
+.video-thumb-overlay{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:26px;
+  background:linear-gradient(
+    180deg,
+    rgba(3,6,14,0) 0%,
+    rgba(3,6,14,.5) 60%,
+    rgba(3,6,14,.8) 100%);
+}
+
+/* big YouTube play ring */
+.video-play-ring{
+  width:84px;height:84px;border-radius:50%;
+  display:grid;place-items:center;
+  background:rgba(255,0,0,.9);
+  box-shadow:
+    0 0 0 8px rgba(255,0,0,.18),
+    0 0 50px rgba(255,0,0,.5);
+  transition:transform .3s ease,box-shadow .3s ease,background .3s;
+}
+.video-play-ring i{font-size:2.3rem;color:#fff;line-height:1}
+.video-thumb-card:hover .video-play-ring{
+  transform:scale(1.14);
+  background:#ff0000;
+  box-shadow:
+    0 0 0 14px rgba(255,0,0,.15),
+    0 0 70px rgba(255,0,0,.6);
+}
+
+/* CTA watch button */
+.video-watch-btn{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:13px 30px;
+  background:rgba(255,255,255,.1);
+  border:1px solid rgba(255,255,255,.22);
+  border-radius:999px;color:#fff;
+  font-family:var(--body);font-size:1rem;font-weight:700;
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  letter-spacing:.03em;
+  box-shadow:0 4px 28px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.1);
+  transition:background .3s,border-color .3s,box-shadow .3s,transform .25s;
+}
+.video-watch-btn i{color:#ff3e3e;font-size:1.35rem}
+.video-thumb-card:hover .video-watch-btn{
+  background:rgba(255,255,255,.18);
+  border-color:rgba(255,255,255,.4);
+  box-shadow:0 8px 36px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.15);
+  transform:translateY(-2px);
+}
+
+/* responsive */
+@media(max-width:768px){
+  .video-guide{padding:70px 0}
+  .video-info-tag{padding:7px 14px;font-size:.82rem}
+  .video-card{border-radius:20px}
+  .video-card-inner{border-radius:18px}
+  .video-play-ring{width:66px;height:66px}
+  .video-play-ring i{font-size:1.8rem}
+  .video-watch-btn{font-size:.9rem;padding:11px 22px}
+}
+@media(max-width:480px){
+  .video-guide{padding:50px 0}
+  .video-container{gap:22px}
+  .video-info-row{gap:7px}
+  .video-info-tag{padding:6px 12px;font-size:.78rem}
+  .video-card{border-radius:16px;padding:2px}
+  .video-card-inner{border-radius:14px}
+  .video-chrome{padding:10px 14px}
+  .video-play-ring{width:54px;height:54px}
+  .video-play-ring i{font-size:1.5rem}
+  .video-watch-btn{font-size:.82rem;padding:10px 18px;gap:7px}
+}
+
+/* ══════════════════════════════════════════════════
+   TESTIMONIALS
+══════════════════════════════════════════════════ */
+.test-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.test-card{
+  padding:24px;border-radius:var(--r);
+  border:1px solid var(--border);
+  background:rgba(8,15,28,.9);
+}
+.test-card>p{color:var(--muted);line-height:1.8;margin-bottom:16px;font-size:.92rem}
+.stars{color:var(--gold);font-size:.82rem;letter-spacing:2px;margin-bottom:12px}
+.person{display:flex;align-items:center;gap:10px}
+.avatar{
+  width:38px;height:38px;border-radius:50%;
+  background:linear-gradient(135deg,var(--blue),var(--green));
+  display:grid;place-items:center;color:#fff;font-weight:800;flex-shrink:0;
+}
+.person-info strong{display:block;font-size:.9rem}
+.person-info small{color:var(--muted);font-size:.8rem}
+
+/* ══════════════════════════════════════════════════
+   DOWNLOAD CTA
+══════════════════════════════════════════════════ */
+#download{padding:40px 0 80px}
+.dl-card{
+  border-radius:24px;padding:52px 44px;
+  background:linear-gradient(135deg,#0d1e40 0%,#0c3d72 50%,#094f4a 100%);
+  position:relative;overflow:hidden;
+}
+.dl-card::before,
+.dl-card::after{
+  content:'';position:absolute;border-radius:50%;pointer-events:none;
+}
+.dl-card::before{
+  width:400px;height:400px;top:-180px;left:-140px;
+  background:radial-gradient(circle,rgba(255,255,255,.14),transparent 70%);
+}
+.dl-card::after{
+  width:320px;height:320px;bottom:-140px;right:-100px;
+  background:radial-gradient(circle,rgba(245,166,35,.2),transparent 70%);
+}
+.dl-inner{
+  position:relative;z-index:1;
+  display:flex;align-items:center;justify-content:space-between;gap:30px;flex-wrap:wrap;
+}
+.dl-text h2{font-size:clamp(1.6rem,4vw,2.4rem);margin-bottom:10px;color:#fff}
+.dl-text p{color:rgba(255,255,255,.8);max-width:520px;line-height:1.8}
+.dl-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+.btn-dl{
+  display:inline-flex;align-items:center;gap:9px;
+  padding:13px 24px;border-radius:var(--rr);
+  background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);
+  color:#fff;font-weight:800;text-decoration:none;
+  transition:background .2s,transform .2s;
+}
+.btn-dl:hover{background:rgba(255,255,255,.22);transform:translateY(-2px)}
+.dl-note{font-size:.82rem;color:rgba(255,255,255,.6);margin-top:8px}
+
+/* ══════════════════════════════════════════════════
+   FAQ
+══════════════════════════════════════════════════ */
+#faq{padding-bottom:60px}
+.faq-wrap{max-width:820px;margin-inline:auto;display:grid;gap:8px}
+details{
+  border-radius:var(--r);border:1px solid var(--border);
+  background:rgba(8,15,28,.88);padding:14px 18px;
+}
+summary{
+  font-weight:800;cursor:pointer;list-style:none;
+  padding:4px;border-radius:8px;
+  transition:color .2s;
+}
+summary::-webkit-details-marker{display:none}
+details[open] summary{color:var(--blue)}
+details p{margin-top:12px;color:var(--muted);line-height:1.72;font-size:.94rem}
+
+/* ══════════════════════════════════════════════════
+   FOOTER
+══════════════════════════════════════════════════ */
+.site-footer{
+  border-top:1px solid var(--border);
+  padding:28px 0;color:var(--muted);font-weight:700;
+  background:rgba(3,5,12,.7);
+}
+.footer-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.footer-links{display:flex;gap:16px;flex-wrap:wrap}
+.footer-links a{color:var(--muted);text-decoration:none;font-size:.88rem;transition:color .2s}
+.footer-links a:hover{color:var(--text)}
+
+/* Footer modals */
+.modal-overlay{
+  position:fixed;
+  inset:0;
+  z-index:120;
+  display:grid;
+  place-items:center;
+  padding:20px;
+  background:rgba(2,6,14,.72);
+  backdrop-filter:blur(6px);
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .24s ease;
+}
+.modal-overlay.is-open{
+  opacity:1;
+  pointer-events:auto;
+}
+.modal-card{
+  width:min(100%,560px);
+  max-height:min(86vh,720px);
+  border-radius:20px;
+  border:1px solid rgba(140,175,230,.35);
+  background:linear-gradient(175deg,rgba(11,20,36,.96),rgba(7,12,24,.95));
+  box-shadow:0 24px 60px rgba(0,0,0,.5);
+  display:flex;
+  flex-direction:column;
+  transform:translateY(14px) scale(.98);
+  transition:transform .24s ease;
+}
+.modal-overlay.is-open .modal-card{transform:none}
+.modal-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:18px 18px 12px;
+  border-bottom:1px solid rgba(140,175,230,.2);
+}
+.modal-head h3{
+  font-size:1.05rem;
+  letter-spacing:-.2px;
+}
+.modal-close{
+  width:34px;
+  height:34px;
+  border-radius:10px;
+  border:1px solid rgba(140,175,230,.26);
+  background:rgba(12,22,40,.75);
+  color:#d8e8ff;
+  display:grid;
+  place-items:center;
+  cursor:pointer;
+  transition:background .2s,border-color .2s;
+}
+.modal-close:hover{
+  background:rgba(24,40,70,.95);
+  border-color:rgba(61,139,255,.45);
+}
+.modal-body{
+  padding:14px 18px 20px;
+  overflow:auto;
+}
+.modal-body p{
+  color:#b9cce7;
+  font-size:.94rem;
+  line-height:1.9;
+}
+.modal-body > * + *{margin-top:12px}
+.modal-body h4{
+  color:#e6f0ff;
+  font-size:.9rem;
+  letter-spacing:.2px;
+}
+.modal-list{
+  display:grid;
+  gap:8px;
+  padding-inline-start:20px;
+  color:#b9cce7;
+  font-size:.9rem;
+  line-height:1.85;
+}
+.modal-list li::marker{color:#7ab2ff}
+.modal-note{
+  border:1px solid rgba(122,178,255,.28);
+  background:rgba(61,139,255,.1);
+  border-radius:12px;
+  padding:10px 12px;
+  color:#d7e6fb;
+  font-size:.86rem;
+  line-height:1.8;
+}
+body.modal-open{overflow:hidden}
+
+/* Floating Buttons Container (Desktop) */
+.float-btns-wrap {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.desk-float-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 20px;
+  border-radius: var(--rr);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 800;
+  font-size: .9rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(8px);
+}
+
+.desk-float-dl {
+  background: linear-gradient(120deg, var(--blue), var(--green));
+  border-color: rgba(61, 139, 255, 0.3);
+}
+
+.desk-float-tg {
+  background: linear-gradient(120deg, #2aabee, #2183f3);
+  border-color: rgba(42, 171, 238, 0.4);
+}
+
+.desk-float-btn:hover {
+  transform: translateY(-5px) scale(1.05);
+  filter: brightness(1.1);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* ══════════════════════════════════════════════════
+   FLOATING MOBILE DOCK
+══════════════════════════════════════════════════ */
+.mob-dock{
+  display:none;position:fixed;
+  left:12px;right:12px;
+  bottom:max(12px,env(safe-area-inset-bottom));
+  z-index:95;
+  grid-template-columns:1fr 1fr;
+  gap:10px;padding:10px;
+  border-radius:24px;
+  border:1px solid rgba(255, 255, 255, 0.1);
+  background:rgba(10, 20, 40, 0.9);
+  backdrop-filter:blur(15px);
+  box-shadow:0 20px 50px rgba(0,0,0,0.6);
+}
+.mob-dock a{
+  min-height:48px;border-radius:16px;
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  font-weight:800;font-size:.88rem;text-decoration:none;
+  transition:transform .16s;
+}
+.mob-dock a:active{transform:scale(.95)}
+.dock-dl{
+  background:linear-gradient(120deg,var(--blue),var(--green));
+  color:#fff;
+}
+.dock-tg{
+  background:linear-gradient(120deg,#2aabee,#2183f3);
+  color:#fff;
+}
+
+@media(max-width: 768px) {
+  .float-btns-wrap { display: none; }
+  .mob-dock { display: grid; }
+}
+
+/* ══════════════════════════════════════════════════
+   REVEAL ANIMATION
+══════════════════════════════════════════════════ */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease;transition-delay:var(--delay,0ms)}
+.reveal.show{opacity:1;transform:none}
+
+/* ══════════════════════════════════════════════════
+   RESPONSIVE — TABLET ≤ 1024px
+══════════════════════════════════════════════════ */
+@media(max-width:1024px){
+  .hero-layout{grid-template-columns:1fr;gap:50px}
+  .phones-wrap{height:480px}
+  .hero-btns-mob{display:flex;gap:12px;flex-wrap:wrap;margin-top:0}
+  .hero-btns{display:none}
+  .global-grid,.feat-grid,.steps-grid,.test-grid{grid-template-columns:1fr 1fr}
+  .track-grid{grid-template-columns:1fr}
+  .steps-grid{grid-template-columns:repeat(2,1fr)}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+}
+
+/* ══════════════════════════════════════════════════
+   RESPONSIVE — MOBILE ≤ 768px
+══════════════════════════════════════════════════ */
+@media(max-width:768px){
+  .wrap{width:min(100% - 28px,var(--max))}
+
+  /* header */
+  .header-inner{
+    min-height:auto;
+    flex-wrap:wrap;
+    padding:10px 0;
+    row-gap:10px;
+  }
+  .nav{
+    display:none !important;
+  }
+  .lang-switcher{
+    margin-inline-start:auto;
+    padding:4px;
+  }
+  .lang-btn{
+    width:32px;
+    height:32px;
+    font-size:.92rem;
+  }
+  .header-cta{display:none}
+
+  /* hero */
+  .hero{padding:36px 0 50px}
+  .hero-layout{
+    display:flex;flex-direction:column;gap:24px;
+    max-width:360px;margin-inline:auto;
+  }
+  .hero h1{font-size:clamp(1.7rem,7vw,2.2rem)}
+  .hero-desc{font-size:.95rem;max-width:100%}
+  .hero-btns-mob{
+    display:grid;grid-template-columns:1fr 1fr;
+    gap:10px;width:100%;margin-top:0;
+  }
+  .hero-btns-mob .btn{
+    justify-content:center;text-align:center;
+    padding:12px 10px;font-size:.82rem;border-radius:14px;min-height:48px;
+  }
+
+  /* phones showcase on mobile */
+  .phones-wrap{
+    width:100%;height:420px;
+    align-self:center;
+  }
+  .ph{width:210px !important}
+  .ph-c{transform:translate(-50%,-50%) translateZ(0) scale(.85) !important}
+  .ph-l{transform:translate(-50%,-50%) translateX(-90px) translateZ(-60px) rotateY(18deg) scale(.72) !important;opacity:.55}
+  .ph-r{transform:translate(-50%,-50%) translateX(90px) translateZ(-60px) rotateY(-18deg) scale(.72) !important;opacity:.55}
+  .ph-nav-btn{width:32px;height:32px;font-size:.65rem}
+  .ph-prev{left:-2px}
+  .ph-next{right:-2px}
+
+  /* sections */
+  section{padding:52px 0}
+  .global-grid,.feat-grid,.test-grid{grid-template-columns:1fr}
+  .track-record{padding-top:10px}
+  .track-stats-grid{grid-template-columns:1fr}
+  .track-main-card{padding:20px}
+  .track-stat-card{min-height:unset}
+  .track-chart{height:176px}
+  .telegram-join{padding:18px 0 8px}
+  .telegram-card{padding:22px 18px;flex-direction:column;align-items:stretch;text-align:center}
+  .telegram-copy p{max-width:100%}
+  .telegram-btn{width:100%}
+  .steps-grid{grid-template-columns:1fr}
+  .step-card:not(:last-child)::after{display:none}
+
+  /* download */
+  .dl-card{padding:28px 22px}
+  .dl-inner{flex-direction:column;gap:20px}
+
+  /* footer */
+  .site-footer .footer-inner{justify-content:center;text-align:center}
+  .footer-links{justify-content:center}
+
+  .modal-overlay{padding:14px}
+  .modal-card{border-radius:16px}
+  .modal-head{padding:14px 14px 10px}
+  .modal-body{padding:12px 14px 16px}
+
+  /* mobile dock */
+  .desk-float-dl{display:none}
+  .mob-dock{display:grid}
+  body{padding-bottom:80px}
+  .site-footer{padding-bottom:90px}
+
+  /* text alignment */
+  .hero-copy, .sec-hd, .dl-text, .trust p { text-align: center !important; }
+  h1, h2, h3, p { text-wrap: balance !important; }
+  .hero-tag { display: flex !important; margin-inline: auto !important; width: fit-content !important; }
+  .hero-desc, .sec-hd p, .dl-text p { margin-inline: auto !important; }
+}
+
+@media(max-width:480px){
+  .stats-grid{grid-template-columns:1fr 1fr; gap:8px !important}
+  .stat-card{padding:16px 8px !important; text-align:center !important}
+  .stat-num{font-size:1.6rem !important; margin-bottom:4px !important}
+  .stat-lbl{font-size:.75rem !important; line-height:1.4 !important}
+  
+  .hero-btns-mob{display:flex !important; flex-direction:column !important; gap:12px !important}
+  .hero-btns-mob .btn{width:100% !important; padding:14px 10px !important; font-size:.9rem !important}
+  
+  .trust-badge{font-size:.75rem !important; padding:6px 10px !important}
+
+  .ph{width:210px !important}
+  .ph-c{transform:translate(-50%,-50%) translateZ(0) scale(.78) !important}
+  .ph-l{transform:translate(-50%,-50%) translateX(-75px) translateZ(-50px) rotateY(16deg) scale(.65) !important}
+  .ph-r{transform:translate(-50%,-50%) translateX(75px) translateZ(-50px) rotateY(-16deg) scale(.65) !important}
+  .phones-wrap{height:440px !important}
+}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  .reveal{opacity:1;transform:none}
+}
+
+/* --- تصميم شاشة الافتتاحية (Splash Screen) للموبايل الشمال --- */
+.splash-screen {
+    background: radial-gradient(circle at 50% 50%, rgba(45, 20, 90, 0.4), #03060e 80%) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 70px 10px 40px !important;
+    position: relative;
+    border: none !important;
+}
+.splash-screen::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: 
+        radial-gradient(1px 1px at 20px 30px, rgba(255,255,255,0.4), transparent),
+        radial-gradient(1px 1px at 40px 70px, rgba(255,255,255,0.4), transparent),
+        radial-gradient(1px 1px at 90px 40px, rgba(255,255,255,0.4), transparent),
+        radial-gradient(1.5px 1.5px at 160px 120px, rgba(255,255,255,0.6), transparent),
+        radial-gradient(1.5px 1.5px at 120px 200px, rgba(255,255,255,0.5), transparent);
+    opacity: 0.6;
+    pointer-events: none;
+}
+.splash-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 1;
+}
+.splash-logo {
+    width: 85px;
+    height: 85px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1e3c72, #2a5298, #6f2282);
+    padding: 2px;
+    box-shadow: 0 0 25px rgba(111, 34, 130, 0.6), inset 0 0 15px rgba(255,255,255,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+    position: relative;
+}
+.splash-logo img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    position: relative;
+    z-index: 2;
+}
+.fallback-icon {
+    position: absolute;
+    font-size: 2rem;
+    color: #f5a623;
+    z-index: 1;
+}
+.splash-title {
+    font-family: 'Changa', sans-serif !important;
+    font-size: 1.45rem !important;
+    font-weight: 800 !important;
+    letter-spacing: 3px !important;
+    margin-bottom: 12px !important;
+    display: flex !important;
+    justify-content: center !important;
+    gap: 3px !important;
+    direction: ltr !important;
+}
+.splash-title .w { color: #ffffff; }
+.splash-title .b { color: #3d8bff; }
+.splash-title .p { color: #8b5cf6; }
+.splash-badge {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.4);
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.45rem;
+    letter-spacing: 4px;
+    color: #f5a623;
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+}
+.splash-bottom {
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    z-index: 1;
+}
+.loader-track {
+    width: 100%;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 999px;
+    overflow: hidden;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.8);
+}
+.loader-fill {
+    width: 98%;
+    height: 100%;
+    background: linear-gradient(90deg, #3d8bff, #8b5cf6);
+    border-radius: 999px;
+    box-shadow: 0 0 12px rgba(139, 92, 246, 0.8);
+}
+.loader-text {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 1.5px;
+    color: #7a92b4;
+}
+</style>
+<!-- YouTube postMessage helper — works from file:// and http:// alike -->
+<script>
+  function ytCmd(func, args) {
+    var iframe = document.getElementById('yt-iframe');
+    if (!iframe) return;
+    iframe.contentWindow.postMessage(
+      JSON.stringify({ event: 'command', func: func, args: args || [] }), '*'
+    );
+  }
+</script>
+</head>
+<body>
+<canvas id="bg-canvas" aria-hidden="true"></canvas>
+
+<div class="scroll-bar" id="scroll-bar" aria-hidden="true"></div>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="logo" href="#top" aria-label="Trade Hub">
+      <span class="logo-icon">
+        <img src="logo.png" alt="" width="40" height="40" decoding="async" onerror="this.parentElement.innerHTML='<i class=\'fa-solid fa-chart-line logo-icon-fallback\'></i>'">
+      </span>
+      <span>Trade Hub</span>
+    </a>
+
+    <nav class="nav" id="main-nav" aria-label="القائمة الرئيسية">
+      <a href="#features"><i class="fa-solid fa-chart-line" aria-hidden="true"></i><span>المميزات</span></a>
+      <a href="#video-guide"><i class="fa-solid fa-route" aria-hidden="true"></i><span>كيف تبدأ</span></a>
+      <a href="#download"><i class="fa-solid fa-download" aria-hidden="true"></i><span>التحميل</span></a>
+      <a href="#faq"><i class="fa-regular fa-circle-question" aria-hidden="true"></i><span>الأسئلة</span></a>
+    </nav>
+
+    <div class="lang-switcher" role="group" aria-label="اختيار اللغة">
+      <button class="lang-btn is-active" data-lang="ar" type="button" aria-label="العربية" title="العربية">AR</button>
+      <button class="lang-btn" data-lang="fr" type="button" aria-label="الفرنسية" title="الفرنسية">FR</button>
+      <button class="lang-btn" data-lang="en" type="button" aria-label="الإنجليزية" title="الإنجليزية">EN</button>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:12px;flex-shrink:0;">
+<a class="header-cta" href="https://download1075.mediafire.com/kta0ypf0mblgjDNLadRyYV5q3l6bG_5gJ2VKYLSv4G-43U5Z3ZUJ2OQ5bH5Mz-eXBGcvrbeBAYRhBtYf7s35oaLvv9a8nVUf7nV4ADmNhzLYKUhzK5IKnP1JHfDMXMpSf06wmJ0-PA17eHTG2DBQpGEa9ArsjX6V2-0IFxN2F_w/fet1c213pyezaz7/Trade+Hub_v1.apk" target="_blank" rel="noopener noreferrer" style="margin:0;">
+        <i class="fa-solid fa-download"></i> تحميل التطبيق
+      </a>
+    </div>
+  </div>
+</header>
+
+<main id="top" tabindex="-1">
+<section class="hero">
+  <div id="hero-canvas"></div>
+  <div class="wrap">
+    <div class="hero-layout">
+
+      <div class="hero-copy">
+        <div class="hero-tag">
+          <span class="dot"></span>
+          منصة عربية · أداء عالمي
+        </div>
+        <h1>اتخذ قرارك أسرع مع <em>Trade Hub</em></h1>
+        <p class="hero-desc">
+          من أول تحليل السوق لحظة بلحظة، الي التنفيذ الآلي وإدارة المخاطر الذكية.
+          كل أداة مصممة بمعايير منصات عالمية لتعمل بثقة.
+        </p>
+        <div class="hero-btns">
+          <a class="btn btn-primary" href="https://download1075.mediafire.com/kta0ypf0mblgjDNLadRyYV5q3l6bG_5gJ2VKYLSv4G-43U5Z3ZUJ2OQ5bH5Mz-eXBGcvrbeBAYRhBtYf7s35oaLvv9a8nVUf7nV4ADmNhzLYKUhzK5IKnP1JHfDMXMpSf06wmJ0-PA17eHTG2DBQpGEa9ArsjX6V2-0IFxN2F_w/fet1c213pyezaz7/Trade+Hub_v1.apk" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-bolt"></i> حمل التطبيق مجاناً</a>
+          <a class="btn btn-ghost" href="#video-guide"><i class="fa-regular fa-circle-play"></i> شرح التطبيق</a>
+        </div>
+      </div>
+
+      <aside class="phones-wrap" aria-label="شاشات التطبيق">
+
+        <div class="ph ph-l" id="ph-left" aria-hidden="true">
+  <div class="phone-shell">
+    
+    <div class="p-screen splash-screen">
+      <div class="splash-content">
+        <div class="splash-logo">
+          <img src="logo.png" alt="Trade Hub Logo" onerror="this.style.display='none'">
+          <i class="fa-solid fa-chart-simple fallback-icon"></i>
+        </div>
+       <h2 class="splash-title">
+  <span class="w">TRADE</span> <span class="p">HUB</span>
+</h2>
+        <div class="splash-badge">VIP ECOSYSTEM</div>
+      </div>
+
+      <div class="splash-bottom">
+        <div class="loader-track">
+          <div class="loader-fill"></div>
+        </div>
+        <div class="loader-text">98%</div>
+      </div>
+    </div>
+    </div>
+</div>
+
+        <div class="ph ph-c" id="ph-center">
+          <div class="phone-shell">
+            <div class="p-screen">
+              <div class="p-topbar">
+                <button class="p-icon-btn" type="button"><i class="fa-solid fa-bars"></i></button>
+                <strong class="p-title">SIGNALS</strong>
+                <button class="p-icon-btn active" type="button"><i class="fa-solid fa-arrow-trend-up"></i></button>
+              </div>
+
+              <div class="p-tabs" aria-label="أوضاع الإشارات">
+                <span class="p-tab on">Signals AI</span>
+                <span class="p-tab">Fast Trade</span>
+              </div>
+
+              <div class="p-live">
+                <button class="p-live-btn" type="button"><i class="fa-solid fa-chevron-left"></i></button>
+                <div class="p-live-pill">
+                  <span class="p-live-dot"></span>
+                  <span>LIVE</span>
+                  <strong>21:28:51</strong>
+                </div>
+                <button class="p-live-btn" type="button"><i class="fa-regular fa-bell"></i></button>
+              </div>
+
+              <div class="p-section-hd">
+                <span>الإشارات النشطة</span>
+                <span>٣ إشارات</span>
+              </div>
+
+              <div class="p-cards">
+                <div class="p-card sell">
+                  <div class="p-card-top">
+                    <span class="p-card-pair">NZD/USD</span>
+                    <span class="p-card-badge sell"><i class="fa-solid fa-arrow-down"></i> SELL</span>
+                  </div>
+                  <div class="p-card-row">
+                    <button class="p-dir-btn sell"><i class="fa-solid fa-arrow-trend-down"></i> SELL</button>
+                    <div class="p-entry">
+                      <small>ENTRY PRICE</small>
+                      <strong>1.03127</strong>
+                    </div>
+                  </div>
+                  <div class="p-risk">
+                    <div class="p-risk-side tp">
+                      <small>TAKE PROFIT</small>
+                      <strong>0.99810</strong>
+                    </div>
+                    <div class="p-risk-div"></div>
+                    <div class="p-risk-side sl">
+                      <small>STOP LOSS</small>
+                      <strong>1.04786</strong>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="p-card buy">
+                  <div class="p-card-top">
+                    <span class="p-card-pair">AUD/USD</span>
+                    <span class="p-card-badge buy"><i class="fa-solid fa-arrow-up"></i> BUY</span>
+                  </div>
+                  <div class="p-card-row">
+                    <button class="p-dir-btn buy"><i class="fa-solid fa-arrow-trend-up"></i> BUY</button>
+                    <div class="p-entry">
+                      <small>ENTRY PRICE</small>
+                      <strong>0.65480</strong>
+                    </div>
+                  </div>
+                  <div class="p-risk">
+                    <div class="p-risk-side tp">
+                      <small>TAKE PROFIT</small>
+                      <strong>0.66850</strong>
+                    </div>
+                    <div class="p-risk-div"></div>
+                    <div class="p-risk-side sl">
+                      <small>STOP LOSS</small>
+                      <strong>0.64210</strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="p-dock">
+                <i class="fa-solid fa-house"></i>
+                <i class="fa-solid fa-chart-line on"></i>
+                <i class="fa-solid fa-sliders"></i>
+                <i class="fa-solid fa-circle-question"></i>
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <i class="fa-solid fa-lines-leaning"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ph ph-r" id="ph-right" aria-hidden="true">
+          <div class="phone-shell">
+            <div class="p-screen">
+              <div class="p-topbar">
+                <button class="p-icon-btn" type="button"><i class="fa-solid fa-bars"></i></button>
+                <strong class="p-title">BINARY</strong>
+                <button class="p-icon-btn active" type="button"><i class="fa-solid fa-arrow-trend-up"></i></button>
+              </div>
+
+              <div class="p-tabs">
+                <span class="p-tab on">Signals AI</span>
+                <span class="p-tab">Fast Trade</span>
+              </div>
+
+              <div class="p-live">
+                <button class="p-live-btn" type="button"><i class="fa-solid fa-chevron-left"></i></button>
+                <div class="p-live-pill">
+                  <span class="p-live-dot"></span>
+                  <span>LIVE</span>
+                  <strong>20:36:33</strong>
+                </div>
+                <button class="p-live-btn" type="button"><i class="fa-regular fa-bell"></i></button>
+              </div>
+
+              <div class="p-binary-hd">
+                <h4>Binary Signals</h4>
+                <span class="p-binary-chip"><i class="fa-solid fa-sparkles"></i> BINARY</span>
+              </div>
+
+              <div class="p-binary-cards">
+                <div class="p-bin-card put">
+                  <div class="p-bin-top">
+                    <h5>USDCAD_OTC</h5>
+                    <span class="p-bin-badge put"><i class="fa-solid fa-arrow-down"></i> PUT</span>
+                  </div>
+                  <div class="p-bin-meta">
+                    <div class="p-bin-item">
+                      <small>⏱ مدة الصفقة</small>
+                      <strong>1 Min</strong>
+                    </div>
+                    <div class="p-bin-item">
+                      <small>🕘 وقت الدخول</small>
+                      <strong>18:37</strong>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="p-bin-card call">
+                  <div class="p-bin-top">
+                    <h5>EURJPY_OTC</h5>
+                    <span class="p-bin-badge call"><i class="fa-solid fa-arrow-up"></i> CALL</span>
+                  </div>
+                  <div class="p-bin-meta">
+                    <div class="p-bin-item">
+                      <small>⏱ مدة الصفقة</small>
+                      <strong>1 Min</strong>
+                    </div>
+                    <div class="p-bin-item">
+                      <small>🕘 وقت الدخول</small>
+                      <strong>18:35</strong>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="p-bin-card call">
+                  <div class="p-bin-top">
+                    <h5>GBPAUD_OTC</h5>
+                    <span class="p-bin-badge call"><i class="fa-solid fa-arrow-up"></i> CALL</span>
+                  </div>
+                  <div class="p-bin-meta">
+                    <div class="p-bin-item">
+                      <small>⏱ مدة الصفقة</small>
+                      <strong>1 Min</strong>
+                    </div>
+                    <div class="p-bin-item">
+                      <small>🕘 وقت الدخول</small>
+                      <strong>18:34</strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="p-dock">
+                <i class="fa-solid fa-house"></i>
+                <i class="fa-solid fa-chart-line on"></i>
+                <i class="fa-solid fa-sliders"></i>
+                <i class="fa-solid fa-circle-question"></i>
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <i class="fa-solid fa-lines-leaning"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button class="ph-nav-btn ph-prev" type="button" aria-label="الهاتف السابق">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+        <button class="ph-nav-btn ph-next" type="button" aria-label="الهاتف التالي">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+      </aside>
+
+      <div class="hero-btns-mob">
+        <a class="btn btn-primary" href="https://download1075.mediafire.com/kta0ypf0mblgjDNLadRyYV5q3l6bG_5gJ2VKYLSv4G-43U5Z3ZUJ2OQ5bH5Mz-eXBGcvrbeBAYRhBtYf7s35oaLvv9a8nVUf7nV4ADmNhzLYKUhzK5IKnP1JHfDMXMpSf06wmJ0-PA17eHTG2DBQpGEa9ArsjX6V2-0IFxN2F_w/fet1c213pyezaz7/Trade+Hub_v1.apk" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-bolt"></i> ابدأ مجانًا الآن</a>
+        <a class="btn btn-ghost" href="#video-guide"><i class="fa-regular fa-circle-play"></i> شاهد الرحلة</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="trust" style="margin-top: 60px;">
+  <div class="wrap reveal">
+    <p>مبني على معايير تشغيل وأمان عالمية</p>
+    <div class="trust-row">
+      <span class="trust-badge">ISO 27001 Mindset</span>
+      <span class="trust-badge">GDPR-Ready</span>
+      <span class="trust-badge">AES-256</span>
+      <span class="trust-badge">KYC/AML Flow</span>
+      <span class="trust-badge">99.99% Uptime</span>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <div class="sec-hd">
+      <h2>كل ما تحتاجه للتداول في مكان واحد</h2>
+      <p>مجموعة أدوات كاملة.. في لوحة واحدة</p>
+    </div>
+    <div class="feat-scroll-container">
+    <div class="feat-grid">
+      <article class="feat-card">
+        <div class="feat-icon"><i class="fa-solid fa-user-shield"></i></div>
+        <h3>إدارة مخاطر ذكية</h3>
+        <p>حماية رأس المال عبر حدود خسارة يومية، وقف خسارة تلقائي، وتنبيهات فورية عند تجاوز المخاطر.</p>
+      </article>
+      <article class="feat-card">
+        <div class="feat-icon"><i class="fa-solid fa-newspaper"></i></div>
+        <h3>أهم الأخبار الاقتصادية</h3>
+        <p>متابعة أهم الأخبار والتقويم الاقتصادي لحظة بلحظة مع تنبيهات قبل الأحداث المؤثرة.</p>
+      </article>
+      <article class="feat-card">
+        <div class="feat-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+        <h3>صفحة تعليم وكورسات مجانية</h3>
+        <p>مكتبة تعليمية مجانية تشمل كورسات تداول خطوة بخطوة للمبتدئ والمحترف.</p>
+      </article>
+      <article class="feat-card">
+        <div class="feat-icon"><i class="fa-solid fa-robot"></i></div>
+        <h3>بوت تداول تلقائي</h3>
+        <p>بوت ينفذ استراتيجيتك تلقائيًا وفق قواعدك مع تحكم كامل في المخاطر وحجم الصفقات.</p>
+      </article>
+      <article class="feat-card">
+        <div class="feat-icon"><i class="fa-solid fa-signal"></i></div>
+        <h3>إشارات تداول في صفحة السيجنالز</h3>
+        <p>إشارات دخول وخروج واضحة داخل صفحة Signals مع تفاصيل الاتجاه ونقاط الهدف ووقف الخسارة.</p>
+      </article>
+      <article class="feat-card">
+        <div class="feat-icon"><i class="fa-solid fa-comments"></i></div>
+        <h3>شات AI خبير تداول</h3>
+        <p>شات ذكي يشرح لك فرص السوق ويقترح سيناريوهات تداول بناءً على البيانات الحالية.</p>
+      </article>
+    </div>
+    </div>
+  </div>
+</section>
+
+<section id="video-guide" class="video-guide">
+  <div class="wrap">
+    <div class="sec-hd reveal">
+      <h2>فيديو شرح التطبيق</h2>
+      <p>شاهد شرح مفصل عن كل أداة وميزة في Trade Hub.</p>
+    </div>
+
+    <div class="video-container">
+
+      <!-- Info Labels (non-clickable) -->
+      <div class="video-info-row">
+        <span class="video-info-tag"><i class="fa-solid fa-signal"></i> شرح التوصيات</span>
+        <span class="video-info-tag"><i class="fa-solid fa-robot"></i> شرح التداول التلقائي</span>
+        <span class="video-info-tag"><i class="fa-solid fa-circle-play"></i> شرح المحاضرات</span>
+        <span class="video-info-tag"><i class="fa-solid fa-comments"></i> شرح الشات الذكي</span>
+        <span class="video-info-tag"><i class="fa-solid fa-shield-halved"></i> شرح إدارة المخاطر</span>
+      </div>
+
+      <!-- Premium Glassmorphism Video Card -->
+      <div class="video-card">
+        <div class="video-card-inner">
+
+          <!-- macOS chrome bar -->
+          <div class="video-chrome">
+            <span class="video-chrome-dot"></span>
+            <span class="video-chrome-dot"></span>
+            <span class="video-chrome-dot"></span>
+            <span class="video-chrome-title">Trade Hub · Interactive Guide</span>
+          </div>
+
+          <!-- Thumbnail + CTA -->
+          <a class="video-thumb-card"
+             href="https://www.youtube.com/watch?v=AKk7HFjGMU4"
+             target="_blank" rel="noopener noreferrer"
+             aria-label="شاهد الفيديو على يوتيوب">
+            <img
+              src="https://img.youtube.com/vi/AKk7HFjGMU4/sddefault.jpg"
+              alt="Trade Hub دليل الفيديو التفاعلي"
+              class="video-thumb-img"
+              loading="lazy"
+              onerror="this.onerror=null;this.src='https://img.youtube.com/vi/AKk7HFjGMU4/hqdefault.jpg';">
+            <div class="video-thumb-overlay">
+              <div class="video-play-ring">
+                <i class="fa-brands fa-youtube"></i>
+              </div>
+              <span class="video-watch-btn">
+                <i class="fa-brands fa-youtube"></i>
+                اضغط لمشاهدة الفيديو
+              </span>
+            </div>
+          </a>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section id="exchanges" class="exchanges">
+  <div class="wrap">
+    <div class="sec-hd">
+      <h2>يدعم جميع المنصات</h2>
+      <p style="margin-top:10px; font-size:0.95rem;">نوفر لك ادوات تحليل وصفقات جاهزه لجميع المنصات</p>
+    </div>
+    <div class="exchange-grid">
+      <div class="exchange-card">
+        <img src="./platforms/binance.png" alt="Binance" class="exchange-logo">
+      </div>
+      <div class="exchange-card">
+        <img src="./platforms/okx.png" alt="OKX" class="exchange-logo">
+      </div>
+      <div class="exchange-card">
+        <img src="./platforms/exness.png" alt="Exness" class="exchange-logo">
+      </div>
+      <div class="exchange-card">
+        <img src="./platforms/tradingview.png" alt="TradingView" class="exchange-logo">
+      </div>
+      <div class="exchange-card">
+        <img src="./platforms/pocket_option.png" alt="Pocket Option" class="exchange-logo">
+      </div>
+      <div class="exchange-card">
+        <img src="./platforms/qxbroker.png" alt="Quotex" class="exchange-logo">
+      </div>
+      <div class="exchange-card">
+        <img src="./platforms/iq_option.png" alt="IQ Option" class="exchange-logo">
+      </div>
+      <div class="exchange-card">
+        <img src="./platforms/expert_option.png" alt="Expert Option" class="exchange-logo">
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+
+<section class="telegram-join">
+  <div class="wrap">
+    <div class="telegram-card reveal">
+      <div class="telegram-copy">
+        <h2>انضم الى مجتمعنا على Telegram</h2>
+        <p>تابع آخر التحديثات والتنبيهات الفورية وتواصل مع فريقنا ومجتمع المتداولين مباشرة.</p>
+      </div>
+      <a class="telegram-btn" href="https://t.me/ALPASHMO7ASB_TEAM" target="_blank" rel="noopener noreferrer">
+        <i class="fa-brands fa-telegram" aria-hidden="true"></i>
+        <span>الجروب الرسمي</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section id="download">
+  <div class="wrap">
+    <div class="dl-card reveal">
+      <div class="dl-inner">
+        <div class="dl-text">
+          <h2>حمل التطبيق مجانا من هنا!</h2>
+          <p>حمّل Trade Hub الآن وابدأ تجربة تداول متكاملة: توصيات دقيقة، تنفيذ آلي، وكل ما تحتاجه لتصبح متادول ناجح.</p>
+          <div class="dl-actions">
+            <a href="https://download1075.mediafire.com/kta0ypf0mblgjDNLadRyYV5q3l6bG_5gJ2VKYLSv4G-43U5Z3ZUJ2OQ5bH5Mz-eXBGcvrbeBAYRhBtYf7s35oaLvv9a8nVUf7nV4ADmNhzLYKUhzK5IKnP1JHfDMXMpSf06wmJ0-PA17eHTG2DBQpGEa9ArsjX6V2-0IFxN2F_w/fet1c213pyezaz7/Trade+Hub_v1.apk" download class="btn-dl">
+              <i class="fa-solid fa-mobile-screen-button"></i> تحميل Android APK
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <div class="sec-hd reveal">
+      <h2>أسئلة شائعة</h2>
+      <p>إجابات سريعة قبل ما تبدأ.</p>
+    </div>
+    <div class="faq-wrap reveal" style="--delay:80ms">
+      <details>
+        <summary>هل المنصة مناسبة للمبتدئين؟</summary>
+        <p>نعم. تقدر تبدأ بخطة مجانية مع مسارات تعليمية خطوة بخطوة، ثم تتوسع تدريجيًا حسب مستواك.</p>
+      </details>
+      <details>
+        <summary>هل أقدر أتحكم في مستوى المخاطرة؟</summary>
+        <p>بشكل كامل. تقدر تحدد حدود خسارة يومية، وحجم الصفقة، وقواعد إيقاف تلقائي لكل استراتيجية.</p>
+      </details>
+      <details>
+        <summary>هل يوجد دعم فني دائم؟</summary>
+        <p>دعم فني متاح على مدار الساعة داخل التطبيق لمساعدتك في أي استفسار أو مشكلة تشغيل.</p>
+      </details>
+      <details>
+        <summary>هل يمكنني إلغاء الاشتراك في أي وقت؟</summary>
+        <p>بالتأكيد. الاشتراك بدون عقود سنوية إلزامية، والإلغاء متاح من لوحة التحكم مباشرة.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <span>© <span id="yr">2026</span> Trade Hub. جميع الحقوق محفوظة.</span>
+    <div class="footer-links">
+      <a href="#about-modal" data-modal-target="about-modal">من نحن</a>
+      <a href="#privacy-modal" data-modal-target="privacy-modal">سياسة الخصوصية</a>
+      <a href="#terms-modal" data-modal-target="terms-modal">شروط الاستخدام</a>
+      <a href="#support-modal" data-modal-target="support-modal">الدعم</a>
+    </div>
+  </div>
+</footer>
+
+<div class="modal-overlay" id="privacy-modal" aria-hidden="true">
+  <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="privacy-modal-title">
+    <div class="modal-head">
+      <h3 id="privacy-modal-title">سياسة الخصوصية</h3>
+      <button class="modal-close" type="button" data-modal-close aria-label="إغلاق النافذة">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>تمثل هذه النسخة ملخصًا مبسطًا لسياسة الخصوصية لتوضيح طريقة جمع البيانات واستخدامها وحمايتها داخل المنصة.</p>
+      <h4>ما البيانات التي نجمعها</h4>
+      <ul class="modal-list">
+        <li>بيانات الحساب الأساسية مثل الاسم والبريد الإلكتروني ووسيلة التواصل عند التسجيل أو تفعيل الدعم.</li>
+        <li>بيانات تقنية مثل نوع الجهاز، نظام التشغيل، عنوان IP، وسجلات الاستخدام اللازمة للأمان وتحسين الأداء.</li>
+        <li>بيانات المعاملات داخل التطبيق بما يضمن تشغيل الخدمة ومتابعة الجودة والامتثال.</li>
+      </ul>
+      <h4>كيف نستخدم البيانات</h4>
+      <ul class="modal-list">
+        <li>تشغيل المنصة، إدارة الحساب، وتقديم الخدمات الأساسية بشكل مستقر وآمن.</li>
+        <li>كشف محاولات الاحتيال أو إساءة الاستخدام، ورفع مستوى حماية الحسابات.</li>
+        <li>تحسين تجربة المستخدم، وتطوير الميزات بناءً على أنماط الاستخدام العامة.</li>
+      </ul>
+      <h4>المشاركة والاحتفاظ</h4>
+      <ul class="modal-list">
+        <li>لا يتم بيع البيانات الشخصية، وتتم أي مشاركة مع مزودي خدمة موثوقين وفق التزامات سرية واضحة.</li>
+        <li>يتم الاحتفاظ بالبيانات للمدة الضرورية تشغيليًا أو نظاميًا، ثم حذفها أو إخفاء هويتها حيثما أمكن.</li>
+        <li>يمكنك طلب تحديث أو تصحيح بياناتك عبر قنوات الدعم المعتمدة.</li>
+      </ul>
+      <p class="modal-note">باستخدامك المنصة فإنك تقر باطلاعك على هذا الملخص، مع أحقية المنصة في تحديث السياسة بما يتوافق مع المتطلبات التنظيمية والتشغيلية.</p>
+    </div>
+  </section>
+</div>
+<div class="modal-overlay" id="about-modal" aria-hidden="true">
+  <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="about-modal-title">
+    <div class="modal-head">
+      <h3 id="about-modal-title">من نحن</h3>
+      <button class="modal-close" type="button" data-modal-close aria-label="إغلاق النافذة">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>منصة <strong>Trade Hub</strong> هي بيئة تداول ذكية متكاملة، صُممت خصيصاً لتلبية احتياجات المتداول العربي بمعايير وتكنولوجيا المنصات العالمية.</p>
+      
+      <h4>رؤيتنا</h4>
+      <p>نهدف إلى تمكين المتداولين من مختلف المستويات للوصول إلى الأسواق العالمية بثقة، من خلال توفير أدوات تحليل متقدمة وتجربة مستخدم سلسة تجمع بين السرعة والدقة.</p>
+      
+      <h4>لماذا Trade Hub؟</h4>
+      <ul class="modal-list">
+        <li><strong>تكنولوجيا متقدمة:</strong> بنية تحتية سريعة تضمن تنفيذ الصفقات في أجزاء من الثانية.</li>
+        <li><strong>تحليل ذكي:</strong> إشارات تداول دقيقة وأدوات إدارة مخاطر آلية لحماية رأس المال.</li>
+        <li><strong>بيئة آمنة:</strong> أعلى معايير التشفير والخصوصية لحماية بياناتك وأموالك.</li>
+      </ul>
+      
+      <p class="modal-note">نحن هنا لنضع بين يديك أحدث تقنيات التداول، لتتخذ قراراتك الاستثمارية بثقة وسرعة وفعالية.</p>
+    </div>
+  </section>
+</div>
+
+<div class="modal-overlay" id="terms-modal" aria-hidden="true">
+  <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="terms-modal-title">
+    <div class="modal-head">
+      <h3 id="terms-modal-title">شروط الاستخدام</h3>
+      <button class="modal-close" type="button" data-modal-close aria-label="إغلاق النافذة">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>توضح الشروط التالية الأساس التعاقدي لاستخدام المنصة بهدف حماية المستخدم والمنصة من أي إساءة استخدام أو التباس قانوني.</p>
+      <h4>القبول والمسؤولية</h4>
+      <ul class="modal-list">
+        <li>الاستمرار في استخدام المنصة يعني الموافقة على شروط الاستخدام والسياسات المرتبطة بها.</li>
+        <li>المستخدم مسؤول عن الالتزام بالقوانين المحلية المعمول بها في دولته قبل استخدام أي خدمة.</li>
+        <li>أمن بيانات الدخول وكلمات المرور مسؤولية المستخدم بشكل مباشر.</li>
+      </ul>
+      <h4>إخلاء مسؤولية التداول والمحتوى</h4>
+      <ul class="modal-list">
+        <li>المحتوى والإشارات داخل المنصة معلومات تقنية/تعليمية ولا تعد نصيحة استثمارية أو قانونية أو ضريبية.</li>
+        <li>لا يوجد أي ضمان لتحقيق أرباح، والأسواق المالية تتضمن مخاطر قد تؤدي لخسارة رأس المال جزئيًا أو كليًا.</li>
+        <li>قرارات التنفيذ النهائي للصفقات تقع بالكامل على عاتق المستخدم.</li>
+      </ul>
+      <h4>الاستخدام المقبول</h4>
+      <ul class="modal-list">
+        <li>يمنع الوصول غير المصرح به، أو الهندسة العكسية، أو تعطيل الخدمة، أو إعادة بيع المحتوى دون إذن.</li>
+        <li>يحق للمنصة تقييد أو إيقاف الحسابات المخالفة للحفاظ على الأمان والامتثال.</li>
+        <li>يجوز تعديل الشروط دوريًا، ويصبح التحديث نافذًا من تاريخ نشره داخل المنصة.</li>
+      </ul>
+      <p class="modal-note">لأي التزامات قانونية خاصة بنشاطك المالي، يُنصح بالرجوع إلى مستشار قانوني/مالي مرخص قبل اتخاذ قرارات نهائية.</p>
+    </div>
+  </section>
+</div>
+
+<div class="modal-overlay" id="support-modal" aria-hidden="true">
+  <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="support-modal-title">
+    <div class="modal-head">
+      <h3 id="support-modal-title">الدعم</h3>
+      <button class="modal-close" type="button" data-modal-close aria-label="إغلاق النافذة">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>هذا الملخص يحدد نطاق الدعم الرسمي داخل المنصة حتى تكون التوقعات واضحة ويحصل المستخدم على خدمة فعالة ومنضبطة.</p>
+      <h4>نطاق الدعم</h4>
+      <ul class="modal-list">
+        <li>الدعم يغطي مشاكل التسجيل، الدخول، الاشتراكات، الأداء الفني، والإعدادات العامة للحساب.</li>
+        <li>الدعم لا يقدم توصيات تداول شخصية، ولا استشارات قانونية أو ضريبية أو استثمارية ملزمة.</li>
+        <li>يتم التعامل مع البلاغات وفق أولوية الحالة ومدى تأثيرها على الاستخدام.</li>
+      </ul>
+      <h4>الاستجابة والتصعيد</h4>
+      <ul class="modal-list">
+        <li>يتم السعي للرد الأولي خلال يوم عمل، وقد تختلف المدة حسب حجم الطلبات.</li>
+        <li>يرجى تزويد فريق الدعم بمعلومات دقيقة (نوع الجهاز، رقم الإصدار، وصف الخطأ) لتسريع الحل.</li>
+        <li>الحالات الحرجة يتم تصعيدها للفريق المختص مع متابعة دورية حتى الإغلاق.</li>
+      </ul>
+      <p class="modal-note">استخدام قنوات الدعم يعني الموافقة على حفظ سجل المحادثة لأغراض الجودة والامتثال وتحسين الخدمة.</p>
+    </div>
+  </section>
+</div>
+
+<nav class="mob-dock" aria-label="روابط سريعة">
+  <a class="dock-dl" href="https://download1075.mediafire.com/kta0ypf0mblgjDNLadRyYV5q3l6bG_5gJ2VKYLSv4G-43U5Z3ZUJ2OQ5bH5Mz-eXBGcvrbeBAYRhBtYf7s35oaLvv9a8nVUf7nV4ADmNhzLYKUhzK5IKnP1JHfDMXMpSf06wmJ0-PA17eHTG2DBQpGEa9ArsjX6V2-0IFxN2F_w/fet1c213pyezaz7/Trade+Hub_v1.apk" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-download"></i> تحميل التطبيق</a>
+  <a class="dock-tg" href="https://t.me/ALPASHMO7ASB_TEAM" target="_blank"><i class="fa-brands fa-telegram"></i>TELGRAM</a>
+</nav>
+
+<div class="float-btns-wrap">
+  <a class="desk-float-btn desk-float-tg" href="https://t.me/ALPASHMO7ASB_TEAM" target="_blank" aria-label="انضم لمجتمع تلجرام">
+    <i class="fa-brands fa-telegram"></i>
+    <span>TELGRAM</span>
+  </a>
+  <a class="desk-float-btn desk-float-dl" href="https://download1075.mediafire.com/kta0ypf0mblgjDNLadRyYV5q3l6bG_5gJ2VKYLSv4G-43U5Z3ZUJ2OQ5bH5Mz-eXBGcvrbeBAYRhBtYf7s35oaLvv9a8nVUf7nV4ADmNhzLYKUhzK5IKnP1JHfDMXMpSf06wmJ0-PA17eHTG2DBQpGEa9ArsjX6V2-0IFxN2F_w/fet1c213pyezaz7/Trade+Hub_v1.apk" target="_blank" rel="noopener noreferrer" aria-label="تحميل التطبيق">
+    <i class="fa-solid fa-download"></i>
+    <span>تحميل التطبيق</span>
+  </a>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════
+   PREMIUM DYNAMIC CANDLESTICK BACKGROUND
+═══════════════════════════════════════════ */
+(function() {
+  const canvas = document.getElementById('bg-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  
+  let w, h;
+  let candles = [];
+
+  function resize() {
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+    init();
+  }
+  
+  class Candle {
+    constructor(x, y) {
+      this.x = x;
+      this.y = y || Math.random() * h; // Initial position distribution
+      this.reset(true);
+    }
+
+    reset(isInit = false) {
+      // Extra Large Premium Candles
+      this.width = Math.random() * 12 + 10; 
+      this.height = Math.random() * 300 + 150;
+      this.isUp = Math.random() > 0.5;
+      this.wickHeight = this.height + Math.random() * 120 + 60;
+      this.speed = Math.random() * 0.22 + 0.12; // Controlled smooth speed
+      this.opacity = Math.random() * 0.12 + 0.05;
+      this.glow = Math.random() * 35 + 20;
+      
+      // If not initial, put it exactly below the screen to start entering
+      if (!isInit) {
+        this.y = h + this.wickHeight / 2 + Math.random() * 100;
+      }
+    }
+
+    update() {
+      this.y -= this.speed;
+      // Loop seamlessly: if top of wick leaves screen, move to bottom
+      if (this.y < -(this.wickHeight / 2)) {
+        this.reset(false);
+      }
+    }
+
+    draw() {
+      const color = this.isUp ? `0, 229, 160` : `255, 78, 106`;
+      ctx.save();
+      ctx.globalAlpha = this.opacity;
+      
+      // Intensive Premium Glow
+      ctx.shadowBlur = this.glow;
+      ctx.shadowColor = `rgba(${color}, 0.8)`;
+      
+      // Draw Wick
+      ctx.strokeStyle = `rgba(${color}, 1)`;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(this.x, this.y - this.wickHeight / 2);
+      ctx.lineTo(this.x, this.y + this.wickHeight / 2);
+      ctx.stroke();
+
+      // Draw Body with rich gradient
+      const bodyG = ctx.createLinearGradient(0, this.y - this.height/2, 0, this.y + this.height/2);
+      bodyG.addColorStop(0, `rgba(${color}, 1)`);
+      bodyG.addColorStop(0.5, `rgba(${color}, 0.85)`);
+      bodyG.addColorStop(1, `rgba(${color}, 1)`);
+      ctx.fillStyle = bodyG;
+      ctx.fillRect(
+        this.x - this.width / 2,
+        this.y - this.height / 2,
+        this.width,
+        this.height
+      );
+      ctx.restore();
+    }
+  }
+
+  function init() {
+    candles = [];
+    const spacing = 160; 
+    const cols = Math.floor(w / spacing) + 1;
+    for (let i = 0; i < cols; i++) {
+      // Create 2-3 candles per vertical track to ensure no empty gaps
+      for (let j = 0; j < 2; j++) {
+        const startY = Math.random() * h;
+        candles.push(new Candle(i * spacing + (Math.random() * 60 - 30), startY));
+      }
+    }
+  }
+
+  function drawOverlays() {
+    const g = ctx.createRadialGradient(w/2, h/2, 0, w/2, h/2, w);
+    g.addColorStop(0, 'rgba(10, 18, 38, 0)');
+    g.addColorStop(1, 'rgba(3, 6, 14, 0.75)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, w, h);
+
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.02)';
+    ctx.lineWidth = 0.5;
+    const step = 120;
+    for(let x=0; x<w; x+=step){
+      ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke();
+    }
+    for(let y=0; y<h; y+=step){
+      ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke();
+    }
+  }
+
+  function animate() {
+    ctx.clearRect(0, 0, w, h);
+    drawOverlays();
+    candles.forEach(c => {
+      c.update();
+      c.draw();
+    });
+    requestAnimationFrame(animate);
+  }
+
+  resize();
+  window.addEventListener('resize', resize);
+  animate();
+})();
+
+/* ═══════════════════════════════════════════
+   GSAP PREMIUM ANIMATIONS
+═══════════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded', () => {
+  const featContainer = document.querySelector('.feat-scroll-container');
+  const featGrid = document.querySelector('.feat-grid');
+
+  if (featContainer && featGrid) {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (!prefersReducedMotion) {
+      const originalCards = [...featGrid.querySelectorAll('.feat-card')];
+      if (originalCards.length <= 6) {
+        originalCards.forEach(card => {
+          const clone = card.cloneNode(true);
+          clone.setAttribute('aria-hidden', 'true');
+          featGrid.appendChild(clone);
+        });
+      }
+
+      const cards = [...featGrid.querySelectorAll('.feat-card')];
+      const speed = 0.5;
+      let positions = [];
+      let isPaused = false;
+      let isDragged = false;
+      let deltaX = 0;
+      let dragInertia = 0;
+      let lastClientX = 0;
+
+      const getGap = () => 24;
+
+      const layoutCards = () => {
+        const gap = getGap();
+        let x = 0;
+        let maxHeight = 0;
+
+        positions = cards.map(card => {
+          const width = card.getBoundingClientRect().width;
+          const height = card.getBoundingClientRect().height;
+          const item = { card, x, width };
+          card.style.transform = `translate3d(${x}px, 0, 0)`;
+          x += width + gap;
+          maxHeight = Math.max(maxHeight, height);
+          return item;
+        });
+
+        cards.forEach(card => card.style.height = `${Math.ceil(maxHeight)}px`);
+        featGrid.style.minHeight = `${Math.ceil(maxHeight)}px`;
+      };
+
+      const animateLoop = () => {
+        let dx = 0;
+        if (isDragged) {
+          dx = deltaX;
+          deltaX = 0;
+        } else if (Math.abs(dragInertia) > 0.1) {
+          dx = dragInertia;
+          dragInertia *= 0.92;
+        } else if (!isPaused) {
+          dx = -speed;
+        }
+
+        if (dx !== 0) {
+          const gap = getGap();
+          positions.forEach(item => item.x += dx);
+          positions.sort((a, b) => a.x - b.x);
+
+          const buffer = 100;
+          if (dx < 0 || (!isDragged && !isPaused && dragInertia === 0)) {
+            while (positions[0].x + positions[0].width < -buffer) {
+                const first = positions.shift();
+                const last = positions[positions.length - 1];
+                first.x = last.x + last.width + gap;
+                positions.push(first);
+            }
+          } else if (dx > 0) {
+            const maxRight = Math.max(featContainer.clientWidth, window.innerWidth) + buffer;
+            while (positions[positions.length - 1].x > maxRight) {
+                const last = positions.pop();
+                const first = positions[0];
+                last.x = first.x - last.width - gap;
+                positions.unshift(last);
+            }
+          }
+
+          positions.forEach(item => {
+            item.card.style.transform = `translate3d(${item.x}px, 0, 0)`;
+          });
+        }
+
+        requestAnimationFrame(animateLoop);
+      };
+
+      const handleStart = (clientX) => {
+        isDragged = true;
+        featContainer.style.cursor = 'grabbing';
+        lastClientX = clientX;
+        dragInertia = 0;
+        deltaX = 0;
+      };
+
+      const handleMove = (clientX) => {
+        if (!isDragged) return;
+        const dx = clientX - lastClientX;
+        deltaX += dx;
+        dragInertia = dx;
+        lastClientX = clientX;
+      };
+
+      const handleEnd = () => {
+        isDragged = false;
+        featContainer.style.cursor = 'grab';
+      };
+
+      featContainer.addEventListener('mousedown', (e) => handleStart(e.clientX));
+      window.addEventListener('mousemove', (e) => { if(isDragged) handleMove(e.clientX); });
+      window.addEventListener('mouseup', handleEnd);
+
+      featContainer.addEventListener('touchstart', (e) => handleStart(e.touches[0].clientX), { passive: true });
+      window.addEventListener('touchmove', (e) => { if(isDragged) handleMove(e.touches[0].clientX); }, { passive: true });
+      window.addEventListener('touchend', handleEnd);
+
+      featContainer.addEventListener('wheel', (e) => {
+         if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+           e.preventDefault();
+           deltaX += -e.deltaX;
+           dragInertia = -e.deltaX;
+         }
+      }, { passive: false });
+
+      featContainer.addEventListener('mouseenter', () => isPaused = true);
+      featContainer.addEventListener('mouseleave', () => isPaused = false);
+
+      window.addEventListener('resize', () => layoutCards());
+
+      layoutCards();
+      animateLoop();
+    }
+  }
+
+  if (typeof gsap !== 'undefined') {
+    gsap.registerPlugin(ScrollTrigger);
+    
+    // Entrance Animation for Hero (Speed up)
+    const heroTl = gsap.timeline({ defaults: { ease: "power4.out", duration: 1.2 }});
+    
+    // Split the H1 into words for a staggered reveal
+    const heroH1 = document.querySelector('.hero h1');
+    if(heroH1) {
+      const words = heroH1.innerHTML.split(' ').map(w => {
+         if (w.includes('<em') || w.includes('</em')) return w;
+         return `<span style="display:inline-block; opacity:0; transform:translateY(30px) rotate(4deg); filter:blur(8px);">${w}</span>`;
+      }).join(' ');
+      heroH1.innerHTML = words.replace('<em>', '<em style="display:inline-block; opacity:0; transform:translateY(30px) rotate(4deg); filter:blur(8px);">');
+    }
+
+    heroTl.from(".hero-tag", { opacity: 0, scale: 0.5, y: 30, filter: "blur(10px)" }, 0.2);
+    heroTl.to(".hero h1 span, .hero h1 em", { opacity: 1, y: 0, rotation: 0, filter: "blur(0px)", stagger: 0.08, duration: 1.2, ease: "back.out(1.7)" }, "-=1");
+    heroTl.from(".hero-desc", { opacity: 0, y: 30, filter: "blur(5px)" }, "-=0.9");
+    heroTl.from(".hero-btns .btn, .hero-btns-mob .btn", { opacity: 0, y: 30, stagger: 0.12, filter: "blur(5px)" }, "-=0.8");
+    
+    // Smooth & Professional GSAP Entrance for Phones (No Transform Conflicts)
+    gsap.set(".ph", { transition: "none" }); // Temporarily disable CSS transitions during GSAP animation
+
+    heroTl.from(".phones-wrap", { opacity: 0, duration: 0.3 }, 0.2); 
+    
+    heroTl.from(".ph-c", {
+      top: "85%", // Smoothly slide up from the bottom (avoids transform !important conflicts)
+      opacity: 0,
+      duration: 0.8,
+      ease: "power4.out"
+    }, 0.25); // Fast and responsive
+
+    heroTl.from(".ph-r", {
+      left: "65%", // Slide in from right slightly
+      opacity: 0,
+      duration: 0.7,
+      ease: "power3.out"
+    }, 0.35);
+
+    heroTl.from(".ph-l", {
+      left: "35%", // Slide in from left slightly
+      opacity: 0,
+      duration: 0.7,
+      ease: "power3.out",
+      onComplete: () => {
+         // Clear inline animation props to restore native CSS hover/layout behavior smoothly
+         gsap.set(".ph", { clearProps: "all" });
+      }
+    }, 0.35);
+
+    // Scroll Animations
+    gsap.from(".stat-card", {
+      scrollTrigger: { trigger: ".stats-bar", start: "top 92%" },
+      opacity: 0, y: 60, stagger: 0.2, duration: 1.5, ease: "power4.out"
+    });
+    
+    // Scroll Animations for Features
+    gsap.from(".feat-scroll-container", {
+      scrollTrigger: { 
+        trigger: ".feat-grid", 
+        start: "top 95%", // Trigger earlier
+        toggleActions: "play none none none"
+      },
+      opacity: 0, 
+      y: 24,
+      duration: 1, 
+      ease: "power2.out",
+      clearProps: "opacity,transform"
+    });
+
+    // Scroll Animations for Global Exchange Integration
+    gsap.from(".exchange-card", {
+      scrollTrigger: {
+        trigger: ".exchange-grid",
+        start: "top 95%", // Appear earlier to avoid missing it
+        toggleActions: "play none none none"
+      },
+      opacity: 0,
+      y: 20,
+      scale: 0.95,
+      stagger: 0.05,
+      duration: 0.6,
+      ease: "power2.out",
+      clearProps: "all" // Important: resets properties after animation so CSS hover works
+    });
+  }
+});
+
+/* scroll progress */
+const bar = document.getElementById('scroll-bar');
+window.addEventListener('scroll', () => {
+  const pct = window.scrollY / (document.documentElement.scrollHeight - innerHeight) * 100;
+  bar.style.width = pct + '%';
+}, {passive:true});
+
+/* reveal on scroll */
+const items = document.querySelectorAll('.reveal');
+if ('IntersectionObserver' in window) {
+  const obs = new IntersectionObserver(es => {
+    es.forEach(e => { if(e.isIntersecting){e.target.classList.add('show');obs.unobserve(e.target)} });
+  }, {threshold:.12});
+  items.forEach(el => obs.observe(el));
+} else {
+  items.forEach(el => el.classList.add('show'));
+}
+
+/* stat counter */
+const stats = document.querySelectorAll('.stat-num[data-target]');
+const sObs = new IntersectionObserver(es => {
+  es.forEach(e => {
+    if(!e.isIntersecting) return;
+    const el = e.target, target = +el.dataset.target, suf = el.dataset.suffix||'';
+    const dur = 1600, start = performance.now();
+    const tick = now => {
+      const p = Math.min((now-start)/dur,1);
+      el.textContent = Math.round(target*p)+suf;
+      if(p<1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+    sObs.unobserve(el);
+  });
+},{threshold:.6});
+stats.forEach(el => sObs.observe(el));
+
+/* live performance track counters */
+const initTrackRecordCounters = () => {
+  const section = document.getElementById('track-record');
+  if (!section) return;
+
+  const counters = Array.from(section.querySelectorAll('.js-track-counter[data-counter-target]'));
+  if (!counters.length) return;
+
+  const formatValue = (value, decimals, useGrouping) => {
+    if (useGrouping) {
+      return value.toLocaleString('en-US', {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals
+      });
+    }
+    return value.toFixed(decimals);
+  };
+
+  const renderCounterValue = (el, value) => {
+    const target = Number(el.dataset.counterTarget || 0);
+    const decimals = Number(el.dataset.counterDecimals || 0);
+    const prefix = el.dataset.counterPrefix || '';
+    const suffix = el.dataset.counterSuffix || '';
+    const useGrouping = el.dataset.counterGrouping === 'true';
+    const safeValue = Number.isFinite(value) ? value : target;
+    el.textContent = `${prefix}${formatValue(safeValue, decimals, useGrouping)}${suffix}`;
+  };
+
+  const renderFinalValues = () => {
+    counters.forEach(el => renderCounterValue(el, Number(el.dataset.counterTarget || 0)));
+  };
+
+  const animateCounters = () => {
+    const duration = 1500;
+    const start = performance.now();
+
+    const tick = now => {
+      const progress = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+
+      counters.forEach(el => {
+        const target = Number(el.dataset.counterTarget || 0);
+        renderCounterValue(el, target * eased);
+      });
+
+      if (progress < 1) requestAnimationFrame(tick);
+      else renderFinalValues();
+    };
+
+    requestAnimationFrame(tick);
+  };
+
+  if (!('IntersectionObserver' in window)) {
+    renderFinalValues();
+    return;
+  }
+
+  let played = false;
+  const observer = new IntersectionObserver(entries => {
+    const visible = entries.some(entry => entry.isIntersecting);
+    if (!visible || played) return;
+    played = true;
+    animateCounters();
+    observer.disconnect();
+  }, { threshold: 0.35 });
+
+  observer.observe(section);
+};
+
+initTrackRecordCounters();
+
+/* timezone clocks + language switcher */
+const tzNodes = document.querySelectorAll('[data-tz]');
+const TZ_LOCALE_BY_LANG = { ar: 'ar-EG', fr: 'fr-FR', en: 'en-GB' };
+let activeTZLocale = TZ_LOCALE_BY_LANG.ar;
+const tzFormatters = new Map();
+
+const rebuildTZFormatters = () => {
+  tzFormatters.clear();
+  tzNodes.forEach(n => {
+    const tz = n.getAttribute('data-tz');
+    if (!tzFormatters.has(tz)) {
+      try {
+        tzFormatters.set(tz, new Intl.DateTimeFormat(activeTZLocale, {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false,
+          timeZone: tz
+        }));
+      } catch (e) {
+        tzFormatters.set(tz, null);
+      }
+    }
+  });
+};
+
+const updateTZ = () => {
+  const now = new Date();
+  tzNodes.forEach(n => {
+    const fmt = tzFormatters.get(n.getAttribute('data-tz'));
+    n.textContent = fmt ? fmt.format(now) : '--:--';
+  });
+};
+
+if (tzNodes.length) {
+  rebuildTZFormatters();
+  updateTZ();
+  setInterval(updateTZ, 30000);
+}
+
+const LANG_STORAGE_KEY = 'tradehub_lang';
+const SUPPORTED_LANGS = ['ar', 'fr', 'en'];
+const DIR_BY_LANG = { ar: 'rtl', fr: 'ltr', en: 'ltr' };
+const COUNTRY_SUFFIX_BY_LANG = { ar: ' دولة', fr: ' pays', en: ' countries' };
+const CLOSE_LABEL_BY_LANG = {
+  ar: 'إغلاق النافذة',
+  fr: 'Fermer la fenetre',
+  en: 'Close dialog'
+};
+
+const TEXT_TRANSLATIONS = {
+  'المميزات': { ar: 'المميزات', fr: 'Fonctionnalites', en: 'Features' },
+  'العالمية': { ar: 'العالمية', fr: 'Mondial', en: 'Global' },
+  'كيف تبدأ': { ar: 'كيف تبدأ', fr: 'Comment commencer', en: 'How It Works' },
+  'التحميل': { ar: 'التحميل', fr: 'Telechargement', en: 'Download' },
+  'الأسئلة': { ar: 'الأسئلة', fr: 'FAQ', en: 'FAQ' },
+  'تحميل التطبيق': { ar: 'تحميل التطبيق', fr: "Telecharger l'application", en: 'Download App' },
+  'منصة عربية · أداء عالمي': { ar: 'منصة عربية · أداء عالمي', fr: 'Plateforme arabe · Performance mondiale', en: 'Arabic Platform · Global Performance' },
+  'من أول تحليل السوق لحظة بلحظة، لحد التنفيذ الآلي وإدارة المخاطر الذكية. كل أداة مصممة بمعايير منصات عالمية عشان تشتغل بثقة.': {
+    ar: 'من أول تحليل السوق لحظة بلحظة، لحد التنفيذ الآلي وإدارة المخاطر الذكية. كل أداة مصممة بمعايير منصات عالمية عشان تشتغل بثقة.',
+    fr: "De l'analyse du marche en direct a l'execution automatisee et la gestion intelligente des risques. Chaque outil est concu selon des standards mondiaux pour trader en confiance.",
+    en: 'From live market analysis to automated execution and smart risk management. Every tool is built on global standards so you can trade with confidence.'
+  },
+  'ابدأ مجانًا الآن': { ar: 'ابدأ مجانًا الآن', fr: 'Commencez gratuitement', en: 'Start Free Now' },
+  'شاهد الرحلة': { ar: 'شاهد الرحلة', fr: 'Voir le parcours', en: 'See the Journey' },
+  'الإشارات النشطة': { ar: 'الإشارات النشطة', fr: 'Signaux actifs', en: 'Active Signals' },
+  '٣ إشارات': { ar: '٣ إشارات', fr: '3 signaux', en: '3 Signals' },
+  '⏱ مدة الصفقة': { ar: '⏱ مدة الصفقة', fr: '⏱ Duree du trade', en: '⏱ Trade Duration' },
+  '🕘 وقت الدخول': { ar: '🕘 وقت الدخول', fr: "🕘 Heure d'entree", en: '🕘 Entry Time' },
+  'استجابة التنبيهات في أقل من ثانية': { ar: 'استجابة التنبيهات في أقل من ثانية', fr: "Reponse des alertes en moins d'une seconde", en: 'Alert response in under one second' },
+  'تشغيل مستمر دون انقطاع': { ar: 'تشغيل مستمر دون انقطاع', fr: 'Fonctionnement continu 24/7', en: 'Continuous 24/7 operation' },
+  'سيناريو تداول آلي جاهز': { ar: 'سيناريو تداول آلي جاهز', fr: 'Scenarios de trading automatises prets', en: 'Ready automated trading scenarios' },
+  'مجتمع مستخدمين من أسواق متعددة': { ar: 'مجتمع مستخدمين من أسواق متعددة', fr: 'Communaute d utilisateurs sur plusieurs marches', en: 'User community across many markets' },
+  'مبني على معايير تشغيل وأمان عالمية': { ar: 'مبني على معايير تشغيل وأمان عالمية', fr: 'Construit selon des standards mondiaux de securite et d exploitation', en: 'Built on global security and operation standards' },
+  'حضور عالمي على مدار الساعة': { ar: 'حضور عالمي على مدار الساعة', fr: 'Presence mondiale 24h/24', en: 'Global Presence Around the Clock' },
+  'منصة مصممة للتشغيل الدولي: متابعة جلسات الأسواق العالمية، ودعم تقني متواصل.': {
+    ar: 'منصة مصممة للتشغيل الدولي: متابعة جلسات الأسواق العالمية، ودعم تقني متواصل.',
+    fr: 'Plateforme concue pour une operation internationale: suivez les sessions des marches mondiaux et profitez d un support technique continu.',
+    en: 'Platform built for international operation: follow global market sessions and get continuous technical support.'
+  },
+  'تغطية متعددة للأسواق': { ar: 'تغطية متعددة للأسواق', fr: 'Couverture multi-marches', en: 'Multi-Market Coverage' },
+  'حلّل ونفّذ بين أسواق مختلفة من نفس اللوحة بدون تبديل منصات.': {
+    ar: 'حلّل ونفّذ بين أسواق مختلفة من نفس اللوحة بدون تبديل منصات.',
+    fr: 'Analysez et executez sur plusieurs marches depuis un seul tableau de bord sans changer de plateforme.',
+    en: 'Analyze and execute across markets from one dashboard without switching platforms.'
+  },
+  'توقيتات عالمية مباشرة': { ar: 'توقيتات عالمية مباشرة', fr: 'Fuseaux horaires mondiaux en direct', en: 'Live Global Timezones' },
+  'تتبّع الوقت الحالي في أهم المراكز المالية لحظيًا.': { ar: 'تتبّع الوقت الحالي في أهم المراكز المالية لحظيًا.', fr: 'Suivez l heure actuelle dans les principaux centres financiers en temps reel.', en: 'Track current time in top financial centers in real time.' },
+  'الرياض': { ar: 'الرياض', fr: 'Riyad', en: 'Riyadh' },
+  'لندن': { ar: 'لندن', fr: 'Londres', en: 'London' },
+  'نيويورك': { ar: 'نيويورك', fr: 'New York', en: 'New York' },
+  'جاهزية تشغيل دولية': { ar: 'جاهزية تشغيل دولية', fr: 'Preparation operationnelle internationale', en: 'International Operational Readiness' },
+  'بنية مرنة للامتثال والسياسات التشغيلية مع تجربة تناسب المتداول العربي.': {
+    ar: 'بنية مرنة للامتثال والسياسات التشغيلية مع تجربة تناسب المتداول العربي.',
+    fr: 'Structure flexible prete a la conformite avec une experience adaptee aux traders arabes.',
+    en: 'Flexible compliance-ready structure with an experience tailored for Arab traders.'
+  },
+  'مجموعة أدوات كاملة.. في لوحة واحدة': { ar: 'مجموعة أدوات كاملة.. في لوحة واحدة', fr: 'Une boite a outils complete... dans un seul tableau de bord', en: 'A Complete Toolkit... In One Dashboard' },
+  'مميزات التطبيق الحقيقية في مكان واحد: إدارة المخاطر، الأخبار اللحظية، التعليم المجاني، الدعم المباشر، إشارات السيجنالز، شات AI، وبوت التداول التلقائي.': { ar: 'مميزات التطبيق الحقيقية في مكان واحد: إدارة المخاطر، الأخبار اللحظية، التعليم المجاني، الدعم المباشر، إشارات السيجنالز، شات AI، وبوت التداول التلقائي.', fr: 'Les vraies fonctionnalites de l application en un seul endroit: gestion des risques, actualites en direct, education gratuite, support direct, signaux Signals, chat IA et bot de trading automatique.', en: 'The app real features in one place: risk management, live news, free education, direct support, Signals page alerts, AI expert chat, and auto trading bot.' },
+  'إدارة مخاطر ذكية': { ar: 'إدارة مخاطر ذكية', fr: 'Gestion intelligente des risques', en: 'Smart Risk Management' },
+  'حماية رأس المال عبر حدود خسارة يومية، وقف خسارة تلقائي، وتنبيهات فورية عند تجاوز المخاطر.': { ar: 'حماية رأس المال عبر حدود خسارة يومية، وقف خسارة تلقائي، وتنبيهات فورية عند تجاوز المخاطر.', fr: 'Protection du capital avec limites de perte quotidiennes, stop-loss automatique et alertes immediates en cas de depassement du risque.', en: 'Protect capital with daily loss limits, automatic stop-loss, and instant alerts when risk thresholds are exceeded.' },
+  'أهم الأخبار الاقتصادية': { ar: 'أهم الأخبار الاقتصادية', fr: 'Top actualites economiques', en: 'Top Economic News' },
+  'متابعة أهم الأخبار والتقويم الاقتصادي لحظة بلحظة مع تنبيهات قبل الأحداث المؤثرة.': { ar: 'متابعة أهم الأخبار والتقويم الاقتصادي لحظة بلحظة مع تنبيهات قبل الأحداث المؤثرة.', fr: 'Suivi des principales actualites et du calendrier economique en temps reel avec alertes avant les evenements majeurs.', en: 'Follow top news and the economic calendar in real time with alerts before major events.' },
+  'صفحة تعليم وكورسات مجانية': { ar: 'صفحة تعليم وكورسات مجانية', fr: 'Page education et cours gratuits', en: 'Free Education and Courses Page' },
+  'مكتبة تعليمية مجانية تشمل كورسات تداول خطوة بخطوة للمبتدئ والمحترف.': { ar: 'مكتبة تعليمية مجانية تشمل كورسات تداول خطوة بخطوة للمبتدئ والمحترف.', fr: 'Bibliotheque educative gratuite avec cours de trading pas a pas pour debutant et professionnel.', en: 'A free learning library with step-by-step trading courses for beginners and professionals.' },
+  'خدمة عملاء 24 ساعة': { ar: 'خدمة عملاء 24 ساعة', fr: 'Service client 24h/24', en: '24-Hour Customer Support' },
+  'فريق دعم متاح 24/7 عبر الدردشة لمساعدتك في أي مشكلة فنية أو استفسار سريع.': { ar: 'فريق دعم متاح 24/7 عبر الدردشة لمساعدتك في أي مشكلة فنية أو استفسار سريع.', fr: 'Equipe support disponible 24/7 via chat pour vous aider sur tout probleme technique ou question rapide.', en: 'Support team available 24/7 via chat to help with any technical issue or quick question.' },
+  'إشارات تداول في صفحة السيجنالز': { ar: 'إشارات تداول في صفحة السيجنالز', fr: 'Signaux de trading dans la page Signals', en: 'Trading Signals in the Signals Page' },
+  'إشارات دخول وخروج واضحة داخل صفحة Signals مع تفاصيل الاتجاه ونقاط الهدف ووقف الخسارة.': { ar: 'إشارات دخول وخروج واضحة داخل صفحة Signals مع تفاصيل الاتجاه ونقاط الهدف ووقف الخسارة.', fr: 'Signaux entree et sortie clairs dans la page Signals avec details de direction, objectifs et stop-loss.', en: 'Clear entry and exit signals inside the Signals page with direction details, targets, and stop-loss.' },
+  'شات AI خبير تداول': { ar: 'شات AI خبير تداول', fr: 'Chat IA expert trading', en: 'AI Expert Trading Chat' },
+  'شات ذكي يشرح لك فرص السوق ويقترح سيناريوهات تداول بناءً على البيانات الحالية.': { ar: 'شات ذكي يشرح لك فرص السوق ويقترح سيناريوهات تداول بناءً على البيانات الحالية.', fr: 'Chat intelligent qui explique les opportunites du marche et propose des scenarios de trading selon les donnees actuelles.', en: 'Smart chat that explains market opportunities and suggests trading scenarios based on current data.' },
+  'بوت تداول تلقائي': { ar: 'بوت تداول تلقائي', fr: 'Bot de trading automatique', en: 'Automatic Trading Bot' },
+  'بوت ينفذ استراتيجيتك تلقائيًا وفق قواعدك مع تحكم كامل في المخاطر وحجم الصفقات.': { ar: 'بوت ينفذ استراتيجيتك تلقائيًا وفق قواعدك مع تحكم كامل في المخاطر وحجم الصفقات.', fr: 'Bot qui execute votre strategie automatiquement selon vos regles avec controle complet du risque et de la taille des positions.', en: 'A bot that executes your strategy automatically based on your rules with full control over risk and position size.' },
+  'الأرقام تتحدث نيابة عنا': { ar: 'الأرقام تتحدث نيابة عنا', fr: 'Les chiffres parlent pour nous', en: 'Numbers Speak for Us' },
+  'سجل أداء مباشر وشفاف يعكس نتائج حقيقية قابلة للمتابعة.': { ar: 'سجل أداء مباشر وشفاف يعكس نتائج حقيقية قابلة للمتابعة.', fr: 'Un historique de performance en direct et transparent qui reflete des resultats reels verifiables.', en: 'A live and transparent performance record that reflects real, trackable results.' },
+  'موثق من Myfxbook': { ar: 'موثق من Myfxbook', fr: 'Verifie par Myfxbook', en: 'Verified by Myfxbook' },
+  'العائد الإجمالي (آخر ٣٠ يوم)': { ar: 'العائد الإجمالي (آخر ٣٠ يوم)', fr: 'Rendement total (30 derniers jours)', en: 'Total Return (Last 30 Days)' },
+  'نسبة النجاح': { ar: 'نسبة النجاح', fr: 'Taux de reussite', en: 'Win Rate' },
+  'إجمالي النقاط': { ar: 'إجمالي النقاط', fr: 'Total Pips', en: 'Total Pips' },
+  'العائد للمخاطرة': { ar: 'العائد للمخاطرة', fr: 'Rendement/Risque', en: 'Risk/Reward' },
+  'أقصى تراجع': { ar: 'أقصى تراجع', fr: 'Drawdown maximal', en: 'Max Drawdown' },
+  'انضم الى مجتمعنا على تلجرام': { ar: 'انضم الى مجتمعنا على تلجرام', fr: 'Rejoignez notre communaute Telegram', en: 'Join Our Telegram Community' },
+  'تابع آخر التحديثات والتنبيهات الفورية وتواصل مع فريقنا ومجتمع المتداولين مباشرة.': { ar: 'تابع آخر التحديثات والتنبيهات الفورية وتواصل مع فريقنا ومجتمع المتداولين مباشرة.', fr: 'Suivez les dernieres mises a jour, alertes instantanees et echangez directement avec notre equipe et la communaute des traders.', en: 'Get the latest updates and instant alerts, and connect directly with our team and trader community.' },
+  'انضم الآن': { ar: 'انضم الآن', fr: 'Rejoindre maintenant', en: 'Join Now' },
+  'من التسجيل للتنفيذ في 4 خطوات': { ar: 'من التسجيل للتنفيذ في 4 خطوات', fr: 'De l inscription a l execution en 4 etapes', en: 'From Signup to Execution in 4 Steps' },
+  'تجربة استخدام سلسة تخليك جاهز للتداول الفعلي بسرعة.': { ar: 'تجربة استخدام سلسة تخليك جاهز للتداول الفعلي بسرعة.', fr: 'Une experience fluide qui vous prepare rapidement au trading reel.', en: 'A smooth experience that gets you ready for live trading quickly.' },
+  'أنشئ حسابك': { ar: 'أنشئ حسابك', fr: 'Creez votre compte', en: 'Create Your Account' },
+  'تسجيل سريع وتفعيل آمن في دقائق مع إعدادات خصوصية متقدمة.': { ar: 'تسجيل سريع وتفعيل آمن في دقائق مع إعدادات خصوصية متقدمة.', fr: 'Inscription rapide et activation securisee en quelques minutes avec des parametres de confidentialite avances.', en: 'Fast registration and secure activation in minutes with advanced privacy settings.' },
+  'حدد استراتيجيتك': { ar: 'حدد استراتيجيتك', fr: 'Definissez votre strategie', en: 'Set Your Strategy' },
+  'اختر بين المحافظ، المتوازن، أو الهجومي حسب هدفك الاستثماري.': { ar: 'اختر بين المحافظ، المتوازن، أو الهجومي حسب هدفك الاستثماري.', fr: 'Choisissez prudent, equilibre ou agressif selon vos objectifs d investissement.', en: 'Choose conservative, balanced, or aggressive based on your investment goals.' },
+  'فعّل الأدوات الذكية': { ar: 'فعّل الأدوات الذكية', fr: 'Activez les outils intelligents', en: 'Enable Smart Tools' },
+  'تنبيهات + AI + أتمتة التنفيذ تعمل معًا كمنظومة واحدة.': { ar: 'تنبيهات + AI + أتمتة التنفيذ تعمل معًا كمنظومة واحدة.', fr: 'Alertes + IA + automatisation d execution fonctionnent ensemble comme un seul systeme.', en: 'Alerts + AI + execution automation work together as one system.' },
+  'تابع ووسع نطاقك': { ar: 'تابع ووسع نطاقك', fr: 'Suivez et evoluez', en: 'Track and Scale' },
+  'لوحات أداء مباشرة تساعدك تبني خطة تداول قابلة للنمو عالميًا.': { ar: 'لوحات أداء مباشرة تساعدك تبني خطة تداول قابلة للنمو عالميًا.', fr: 'Des tableaux de bord en direct vous aident a construire un plan de trading evolutif a l echelle mondiale.', en: 'Live performance dashboards help you build a globally scalable trading plan.' },
+  'المتداولون بيتكلموا بالأرقام': { ar: 'المتداولون بيتكلموا بالأرقام', fr: 'Les traders parlent en chiffres', en: 'Traders Speak in Numbers' },
+  'آراء حقيقية من مستخدمين اعتمدوا Trade Hub كأساس قراراتهم اليومية.': { ar: 'آراء حقيقية من مستخدمين اعتمدوا Trade Hub كأساس قراراتهم اليومية.', fr: 'Avis reels d utilisateurs qui s appuient sur Trade Hub pour leurs decisions quotidiennes.', en: 'Real feedback from users who rely on Trade Hub for daily decisions.' },
+  'إدارة المخاطر التلقائية حتى في أيام التذبذب العالي قدرت أحافظ على استقرار المحفظة.': { ar: '"إدارة المخاطر التلقائية حتى في أيام التذبذب العالي قدرت أحافظ على استقرار المحفظة."', fr: '"La gestion automatique des risques, meme pendant les jours de forte volatilite, m a aidee a garder mon portefeuille stable."', en: '"Automated risk management helped me keep my portfolio stable even on highly volatile days."' },
+  'سارة عبدالعزيز': { ar: 'سارة عبدالعزيز', fr: 'Sara Abdelaziz', en: 'Sara Abdelaziz' },
+  'متداولة عملات رقمية': { ar: 'متداولة عملات رقمية', fr: 'Trader crypto', en: 'Crypto Trader' },
+  'واجهة واضحة وسريعة جدًا بقدر أنفذ قراري في ثواني بدل ما اقعد أتنقل بين أدوات كتير.': { ar: '"واجهة واضحة وسريعة جدًا بقدر أنفذ قراري في ثواني بدل ما اقعد أتنقل بين أدوات كتير."', fr: '"Interface claire et tres rapide, je peux executer ma decision en quelques secondes au lieu de passer entre plusieurs outils."', en: '"A clear and very fast interface. I can execute my decision in seconds instead of jumping across many tools."' },
+  'محمود علي': { ar: 'محمود علي', fr: 'Mahmoud Ali', en: 'Mahmoud Ali' },
+  'متداول فوركس': { ar: 'متداول فوركس', fr: 'Trader Forex', en: 'Forex Trader' },
+  'المساعد الذكي بيوفر وقت التحليل وبيخليني أشتغل بثقة أكبر في كل صفقة.': { ar: '"المساعد الذكي بيوفر وقت التحليل وبيخليني أشتغل بثقة أكبر في كل صفقة."', fr: '"L assistant intelligent me fait gagner du temps d analyse et me donne plus de confiance sur chaque trade."', en: '"The AI assistant saves analysis time and gives me more confidence on every trade."' },
+  'رانيا سمير': { ar: 'رانيا سمير', fr: 'Rania Samir', en: 'Rania Samir' },
+  'مديرة محفظة مستقلة': { ar: 'مديرة محفظة مستقلة', fr: 'Gerante de portefeuille independante', en: 'Independent Portfolio Manager' },
+  'جاهز تنقل تداولك لمستوى عالمي؟': { ar: 'جاهز تنقل تداولك لمستوى عالمي؟', fr: 'Pret a faire passer votre trading au niveau mondial ?', en: 'Ready to Move Your Trading to a Global Level?' },
+  'حمّل Trade Hub الآن وابدأ تجربة تداول متكاملة: توصيات دقيقة، تنفيذ ذكي، ومتابعة مستمرة من أي مكان.': { ar: 'حمّل Trade Hub الآن وابدأ تجربة تداول متكاملة: توصيات دقيقة، تنفيذ ذكي، ومتابعة مستمرة من أي مكان.', fr: 'Telechargez Trade Hub maintenant et commencez une experience de trading complete: signaux precis, execution intelligente et suivi continu depuis n importe ou.', en: 'Download Trade Hub now and start an integrated trading experience: accurate signals, smart execution, and continuous tracking from anywhere.' },
+  'تحميل Android APK': { ar: 'تحميل Android APK', fr: 'Telecharger Android APK', en: 'Download Android APK' },
+  'ضع ملف التحميل باسم TradeHub-Android.apk داخل نفس مجلد الموقع.': { ar: 'ضع ملف التحميل باسم TradeHub-Android.apk داخل نفس مجلد الموقع.', fr: 'Placez le fichier de telechargement sous le nom TradeHub-Android.apk dans le meme dossier du site.', en: 'Place the download file as TradeHub-Android.apk in the same website folder.' },
+  'أسئلة شائعة': { ar: 'أسئلة شائعة', fr: 'Questions frequentes', en: 'Frequently Asked Questions' },
+  'إجابات سريعة قبل ما تبدأ.': { ar: 'إجابات سريعة قبل ما تبدأ.', fr: 'Reponses rapides avant de commencer.', en: 'Quick answers before you start.' },
+  'هل المنصة مناسبة للمبتدئين؟': { ar: 'هل المنصة مناسبة للمبتدئين؟', fr: 'La plateforme convient-elle aux debutants ?', en: 'Is the platform suitable for beginners?' },
+  'نعم. تقدر تبدأ بخطة مجانية مع مسارات تعليمية خطوة بخطوة، ثم تتوسع تدريجيًا حسب مستواك.': { ar: 'نعم. تقدر تبدأ بخطة مجانية مع مسارات تعليمية خطوة بخطوة، ثم تتوسع تدريجيًا حسب مستواك.', fr: 'Oui. Vous pouvez commencer avec un plan gratuit et des parcours d apprentissage pas a pas, puis evoluer progressivement selon votre niveau.', en: 'Yes. You can start with a free plan and step-by-step learning paths, then scale gradually based on your level.' },
+  'هل أقدر أتحكم في مستوى المخاطرة؟': { ar: 'هل أقدر أتحكم في مستوى المخاطرة؟', fr: 'Puis-je controler le niveau de risque ?', en: 'Can I control risk level?' },
+  'بشكل كامل. تقدر تحدد حدود خسارة يومية، وحجم الصفقة، وقواعد إيقاف تلقائي لكل استراتيجية.': { ar: 'بشكل كامل. تقدر تحدد حدود خسارة يومية، وحجم الصفقة، وقواعد إيقاف تلقائي لكل استراتيجية.', fr: 'Completement. Definissez des limites de perte quotidiennes, la taille des trades et des regles d arret automatique pour chaque strategie.', en: 'Completely. Set daily loss limits, trade size, and auto-stop rules per strategy.' },
+  'هل يوجد دعم فني دائم؟': { ar: 'هل يوجد دعم فني دائم؟', fr: 'Y a-t-il un support technique continu ?', en: 'Is there ongoing support?' },
+  'دعم فني متاح على مدار الساعة داخل التطبيق لمساعدتك في أي استفسار أو مشكلة تشغيل.': { ar: 'دعم فني متاح على مدار الساعة داخل التطبيق لمساعدتك في أي استفسار أو مشكلة تشغيل.', fr: 'Un support 24h/24 est disponible dans l application pour toute question ou probleme technique.', en: '24/7 support is available inside the app to help with any question or technical issue.' },
+  'هل يمكنني إلغاء الاشتراك في أي وقت؟': { ar: 'هل يمكنني إلغاء الاشتراك في أي وقت؟', fr: 'Puis-je annuler a tout moment ?', en: 'Can I cancel anytime?' },
+  'بالتأكيد. الاشتراك بدون عقود سنوية إلزامية، والإلغاء متاح من لوحة التحكم مباشرة.': { ar: 'بالتأكيد. الاشتراك بدون عقود سنوية إلزامية، والإلغاء متاح من لوحة التحكم مباشرة.', fr: 'Absolument. Aucun contrat annuel obligatoire, et l annulation est disponible directement depuis le tableau de bord.', en: 'Absolutely. No mandatory annual contracts, and cancellation is available directly from the dashboard.' },
+  'Trade Hub. جميع الحقوق محفوظة.': { ar: 'Trade Hub. جميع الحقوق محفوظة.', fr: 'Trade Hub. Tous droits reserves.', en: 'Trade Hub. All rights reserved.' },
+  'من نحن': { ar: 'من نحن', fr: 'A propos', en: 'About Us' },
+  'سياسة الخصوصية': { ar: 'سياسة الخصوصية', fr: 'Politique de confidentialite', en: 'Privacy Policy' },
+  'شروط الاستخدام': { ar: 'شروط الاستخدام', fr: "Conditions d'utilisation", en: 'Terms of Use' },
+  'الدعم': { ar: 'الدعم', fr: 'Support', en: 'Support' },
+  'تمثل هذه النسخة ملخصًا مبسطًا لسياسة الخصوصية لتوضيح طريقة جمع البيانات واستخدامها وحمايتها داخل المنصة.': { ar: 'تمثل هذه النسخة ملخصًا مبسطًا لسياسة الخصوصية لتوضيح طريقة جمع البيانات واستخدامها وحمايتها داخل المنصة.', fr: 'Cette version est un resume simplifie de la politique de confidentialite pour expliquer la collecte, l utilisation et la protection des donnees dans la plateforme.', en: 'This version is a simplified summary of the privacy policy to explain how data is collected, used, and protected inside the platform.' },
+  'ما البيانات التي نجمعها': { ar: 'ما البيانات التي نجمعها', fr: 'Quelles donnees nous collectons', en: 'What Data We Collect' },
+  'بيانات الحساب الأساسية مثل الاسم والبريد الإلكتروني ووسيلة التواصل عند التسجيل أو تفعيل الدعم.': { ar: 'بيانات الحساب الأساسية مثل الاسم والبريد الإلكتروني ووسيلة التواصل عند التسجيل أو تفعيل الدعم.', fr: "Donnees de compte de base comme le nom, l e-mail et le moyen de contact lors de l inscription ou de l activation du support.", en: 'Basic account data such as name, email, and contact method during registration or support activation.' },
+  'بيانات تقنية مثل نوع الجهاز، نظام التشغيل، عنوان IP، وسجلات الاستخدام اللازمة للأمان وتحسين الأداء.': { ar: 'بيانات تقنية مثل نوع الجهاز، نظام التشغيل، عنوان IP، وسجلات الاستخدام اللازمة للأمان وتحسين الأداء.', fr: 'Donnees techniques comme le type d appareil, le systeme d exploitation, l adresse IP et les journaux d utilisation necessaires a la securite et a l optimisation des performances.', en: 'Technical data such as device type, operating system, IP address, and usage logs needed for security and performance improvement.' },
+  'بيانات المعاملات داخل التطبيق بما يضمن تشغيل الخدمة ومتابعة الجودة والامتثال.': { ar: 'بيانات المعاملات داخل التطبيق بما يضمن تشغيل الخدمة ومتابعة الجودة والامتثال.', fr: 'Donnees de transactions dans l application pour assurer le fonctionnement du service, le suivi de la qualite et la conformite.', en: 'Transaction data inside the app to ensure service operation, quality monitoring, and compliance.' },
+  'كيف نستخدم البيانات': { ar: 'كيف نستخدم البيانات', fr: 'Comment nous utilisons les donnees', en: 'How We Use Data' },
+  'تشغيل المنصة، إدارة الحساب، وتقديم الخدمات الأساسية بشكل مستقر وآمن.': { ar: 'تشغيل المنصة، إدارة الحساب، وتقديم الخدمات الأساسية بشكل مستقر وآمن.', fr: 'Exploiter la plateforme, gerer le compte et fournir les services essentiels de maniere stable et securisee.', en: 'Operate the platform, manage accounts, and deliver core services in a stable and secure way.' },
+  'كشف محاولات الاحتيال أو إساءة الاستخدام، ورفع مستوى حماية الحسابات.': { ar: 'كشف محاولات الاحتيال أو إساءة الاستخدام، ورفع مستوى حماية الحسابات.', fr: 'Detecter les tentatives de fraude ou de mauvaise utilisation et renforcer la protection des comptes.', en: 'Detect fraud or abuse attempts and raise account protection levels.' },
+  'تحسين تجربة المستخدم، وتطوير الميزات بناءً على أنماط الاستخدام العامة.': { ar: 'تحسين تجربة المستخدم، وتطوير الميزات بناءً على أنماط الاستخدام العامة.', fr: 'Ameliorer l experience utilisateur et developper les fonctionnalites selon les tendances d usage generales.', en: 'Improve user experience and develop features based on general usage patterns.' },
+  'المشاركة والاحتفاظ': { ar: 'المشاركة والاحتفاظ', fr: 'Partage et conservation', en: 'Sharing and Retention' },
+  'لا يتم بيع البيانات الشخصية، وتتم أي مشاركة مع مزودي خدمة موثوقين وفق التزامات سرية واضحة.': { ar: 'لا يتم بيع البيانات الشخصية، وتتم أي مشاركة مع مزودي خدمة موثوقين وفق التزامات سرية واضحة.', fr: 'Les donnees personnelles ne sont pas vendues. Tout partage se fait avec des fournisseurs de confiance selon des engagements de confidentialite clairs.', en: 'Personal data is not sold, and any sharing happens only with trusted service providers under clear confidentiality obligations.' },
+  'يتم الاحتفاظ بالبيانات للمدة الضرورية تشغيليًا أو نظاميًا، ثم حذفها أو إخفاء هويتها حيثما أمكن.': { ar: 'يتم الاحتفاظ بالبيانات للمدة الضرورية تشغيليًا أو نظاميًا، ثم حذفها أو إخفاء هويتها حيثما أمكن.', fr: 'Les donnees sont conservees pendant la duree necessaire operationnellement ou legalement, puis supprimees ou anonymisees lorsque possible.', en: 'Data is retained for the period required operationally or legally, then deleted or anonymized where possible.' },
+  'يمكنك طلب تحديث أو تصحيح بياناتك عبر قنوات الدعم المعتمدة.': { ar: 'يمكنك طلب تحديث أو تصحيح بياناتك عبر قنوات الدعم المعتمدة.', fr: 'Vous pouvez demander la mise a jour ou la correction de vos donnees via les canaux de support officiels.', en: 'You can request updates or corrections to your data through approved support channels.' },
+  'باستخدامك المنصة فإنك تقر باطلاعك على هذا الملخص، مع أحقية المنصة في تحديث السياسة بما يتوافق مع المتطلبات التنظيمية والتشغيلية.': { ar: 'باستخدامك المنصة فإنك تقر باطلاعك على هذا الملخص، مع أحقية المنصة في تحديث السياسة بما يتوافق مع المتطلبات التنظيمية والتشغيلية.', fr: 'En utilisant la plateforme, vous reconnaissez avoir pris connaissance de ce resume, et la plateforme se reserve le droit de mettre a jour la politique selon les exigences reglementaires et operationnelles.', en: 'By using the platform, you acknowledge this summary, and the platform reserves the right to update the policy to meet regulatory and operational requirements.' },
+  'منصة': { ar: 'منصة', fr: 'La plateforme', en: 'The' },
+  'هي بيئة تداول ذكية متكاملة، صُممت خصيصاً لتلبية احتياجات المتداول العربي بمعايير وتكنولوجيا المنصات العالمية.': { ar: 'هي بيئة تداول ذكية متكاملة، صُممت خصيصاً لتلبية احتياجات المتداول العربي بمعايير وتكنولوجيا المنصات العالمية.', fr: 'est un environnement de trading intelligent integre, concu specialement pour repondre aux besoins du trader arabe selon les standards et technologies des plateformes mondiales.', en: 'is an integrated smart trading environment, designed specifically to meet Arab trader needs with global platform standards and technology.' },
+  'رؤيتنا': { ar: 'رؤيتنا', fr: 'Notre vision', en: 'Our Vision' },
+  'نهدف إلى تمكين المتداولين من مختلف المستويات للوصول إلى الأسواق العالمية بثقة، من خلال توفير أدوات تحليل متقدمة وتجربة مستخدم سلسة تجمع بين السرعة والدقة.': { ar: 'نهدف إلى تمكين المتداولين من مختلف المستويات للوصول إلى الأسواق العالمية بثقة، من خلال توفير أدوات تحليل متقدمة وتجربة مستخدم سلسة تجمع بين السرعة والدقة.', fr: 'Nous visons a permettre aux traders de tous niveaux d acceder aux marches mondiaux avec confiance, grace a des outils d analyse avances et une experience fluide qui combine vitesse et precision.', en: 'We aim to empower traders of all levels to access global markets with confidence through advanced analytics tools and a smooth user experience combining speed and precision.' },
+  'لماذا Trade Hub؟': { ar: 'لماذا Trade Hub؟', fr: 'Pourquoi Trade Hub ?', en: 'Why Trade Hub?' },
+  'تكنولوجيا متقدمة:': { ar: 'تكنولوجيا متقدمة:', fr: 'Technologie avancee:', en: 'Advanced Technology:' },
+  'بنية تحتية سريعة تضمن تنفيذ الصفقات في أجزاء من الثانية.': { ar: 'بنية تحتية سريعة تضمن تنفيذ الصفقات في أجزاء من الثانية.', fr: 'Une infrastructure rapide qui garantit l execution des ordres en une fraction de seconde.', en: 'High-speed infrastructure that ensures trades execute in fractions of a second.' },
+  'تحليل ذكي:': { ar: 'تحليل ذكي:', fr: 'Analyse intelligente:', en: 'Smart Analysis:' },
+  'إشارات تداول دقيقة وأدوات إدارة مخاطر آلية لحماية رأس المال.': { ar: 'إشارات تداول دقيقة وأدوات إدارة مخاطر آلية لحماية رأس المال.', fr: 'Des signaux de trading precis et des outils automatiques de gestion des risques pour proteger le capital.', en: 'Accurate trading signals and automated risk tools to protect capital.' },
+  'بيئة آمنة:': { ar: 'بيئة آمنة:', fr: 'Environnement securise:', en: 'Secure Environment:' },
+  'أعلى معايير التشفير والخصوصية لحماية بياناتك وأموالك.': { ar: 'أعلى معايير التشفير والخصوصية لحماية بياناتك وأموالك.', fr: 'Les plus hauts standards de chiffrement et de confidentialite pour proteger vos donnees et vos fonds.', en: 'Top encryption and privacy standards to protect your data and funds.' },
+  'نحن هنا لنضع بين يديك أحدث تقنيات التداول، لتتخذ قراراتك الاستثمارية بثقة وسرعة وفعالية.': { ar: 'نحن هنا لنضع بين يديك أحدث تقنيات التداول، لتتخذ قراراتك الاستثمارية بثقة وسرعة وفعالية.', fr: 'Nous sommes la pour vous offrir les technologies de trading les plus recentes afin de prendre vos decisions d investissement avec confiance, rapidite et efficacite.', en: 'We are here to put the latest trading technologies in your hands so you can make investment decisions with confidence, speed, and efficiency.' },
+  'توضح الشروط التالية الأساس التعاقدي لاستخدام المنصة بهدف حماية المستخدم والمنصة من أي إساءة استخدام أو التباس قانوني.': { ar: 'توضح الشروط التالية الأساس التعاقدي لاستخدام المنصة بهدف حماية المستخدم والمنصة من أي إساءة استخدام أو التباس قانوني.', fr: 'Les conditions suivantes definissent la base contractuelle d utilisation de la plateforme afin de proteger l utilisateur et la plateforme contre tout abus ou ambiguite juridique.', en: 'The following terms define the contractual basis for using the platform to protect both the user and the platform from abuse or legal ambiguity.' },
+  'القبول والمسؤولية': { ar: 'القبول والمسؤولية', fr: 'Acceptation et responsabilite', en: 'Acceptance and Responsibility' },
+  'الاستمرار في استخدام المنصة يعني الموافقة على شروط الاستخدام والسياسات المرتبطة بها.': { ar: 'الاستمرار في استخدام المنصة يعني الموافقة على شروط الاستخدام والسياسات المرتبطة بها.', fr: 'La poursuite de l utilisation de la plateforme signifie l acceptation des conditions d utilisation et des politiques associees.', en: 'Continuing to use the platform means agreeing to the terms of use and related policies.' },
+  'المستخدم مسؤول عن الالتزام بالقوانين المحلية المعمول بها في دولته قبل استخدام أي خدمة.': { ar: 'المستخدم مسؤول عن الالتزام بالقوانين المحلية المعمول بها في دولته قبل استخدام أي خدمة.', fr: 'L utilisateur est responsable du respect des lois locales en vigueur dans son pays avant d utiliser tout service.', en: 'The user is responsible for complying with local laws in their country before using any service.' },
+  'أمن بيانات الدخول وكلمات المرور مسؤولية المستخدم بشكل مباشر.': { ar: 'أمن بيانات الدخول وكلمات المرور مسؤولية المستخدم بشكل مباشر.', fr: 'La securite des identifiants et mots de passe releve directement de la responsabilite de l utilisateur.', en: 'Security of login credentials and passwords is the direct responsibility of the user.' },
+  'إخلاء مسؤولية التداول والمحتوى': { ar: 'إخلاء مسؤولية التداول والمحتوى', fr: 'Clause de non-responsabilite trading et contenu', en: 'Trading and Content Disclaimer' },
+  'المحتوى والإشارات داخل المنصة معلومات تقنية/تعليمية ولا تعد نصيحة استثمارية أو قانونية أو ضريبية.': { ar: 'المحتوى والإشارات داخل المنصة معلومات تقنية/تعليمية ولا تعد نصيحة استثمارية أو قانونية أو ضريبية.', fr: 'Le contenu et les signaux dans la plateforme sont des informations techniques/educatives et ne constituent pas un conseil d investissement, juridique ou fiscal.', en: 'Content and signals on the platform are technical/educational information and do not constitute investment, legal, or tax advice.' },
+  'لا يوجد أي ضمان لتحقيق أرباح، والأسواق المالية تتضمن مخاطر قد تؤدي لخسارة رأس المال جزئيًا أو كليًا.': { ar: 'لا يوجد أي ضمان لتحقيق أرباح، والأسواق المالية تتضمن مخاطر قد تؤدي لخسارة رأس المال جزئيًا أو كليًا.', fr: 'Aucune garantie de profit n est fournie, et les marches financiers comportent des risques pouvant entrainer une perte partielle ou totale du capital.', en: 'There is no guarantee of profits, and financial markets carry risks that may lead to partial or total capital loss.' },
+  'قرارات التنفيذ النهائي للصفقات تقع بالكامل على عاتق المستخدم.': { ar: 'قرارات التنفيذ النهائي للصفقات تقع بالكامل على عاتق المستخدم.', fr: 'Les decisions finales d execution des trades sont entierement a la charge de l utilisateur.', en: 'Final trade execution decisions are fully the user s responsibility.' },
+  'الاستخدام المقبول': { ar: 'الاستخدام المقبول', fr: 'Utilisation acceptable', en: 'Acceptable Use' },
+  'يمنع الوصول غير المصرح به، أو الهندسة العكسية، أو تعطيل الخدمة، أو إعادة بيع المحتوى دون إذن.': { ar: 'يمنع الوصول غير المصرح به، أو الهندسة العكسية، أو تعطيل الخدمة، أو إعادة بيع المحتوى دون إذن.', fr: 'L acces non autorise, l ingenierie inverse, la perturbation du service ou la revente du contenu sans autorisation sont interdits.', en: 'Unauthorized access, reverse engineering, service disruption, or reselling content without permission is prohibited.' },
+  'يحق للمنصة تقييد أو إيقاف الحسابات المخالفة للحفاظ على الأمان والامتثال.': { ar: 'يحق للمنصة تقييد أو إيقاف الحسابات المخالفة للحفاظ على الأمان والامتثال.', fr: 'La plateforme peut restreindre ou suspendre les comptes non conformes pour maintenir la securite et la conformite.', en: 'The platform may restrict or suspend violating accounts to preserve security and compliance.' },
+  'يجوز تعديل الشروط دوريًا، ويصبح التحديث نافذًا من تاريخ نشره داخل المنصة.': { ar: 'يجوز تعديل الشروط دوريًا، ويصبح التحديث نافذًا من تاريخ نشره داخل المنصة.', fr: 'Les conditions peuvent etre modifiees periodiquement, et la mise a jour prend effet a sa date de publication dans la plateforme.', en: 'Terms may be updated periodically, and updates become effective from their publication date on the platform.' },
+  'لأي التزامات قانونية خاصة بنشاطك المالي، يُنصح بالرجوع إلى مستشار قانوني/مالي مرخص قبل اتخاذ قرارات نهائية.': { ar: 'لأي التزامات قانونية خاصة بنشاطك المالي، يُنصح بالرجوع إلى مستشار قانوني/مالي مرخص قبل اتخاذ قرارات نهائية.', fr: 'Pour toute obligation legale liee a votre activite financiere, il est recommande de consulter un conseiller juridique/financier agree avant toute decision finale.', en: 'For legal obligations related to your financial activity, consult a licensed legal/financial advisor before making final decisions.' },
+  'هذا الملخص يحدد نطاق الدعم الرسمي داخل المنصة حتى تكون التوقعات واضحة ويحصل المستخدم على خدمة فعالة ومنضبطة.': { ar: 'هذا الملخص يحدد نطاق الدعم الرسمي داخل المنصة حتى تكون التوقعات واضحة ويحصل المستخدم على خدمة فعالة ومنضبطة.', fr: 'Ce resume definit le perimetre du support officiel dans la plateforme afin de clarifier les attentes et fournir un service efficace et structure.', en: 'This summary defines the scope of official support within the platform so expectations are clear and users receive effective, structured service.' },
+  'نطاق الدعم': { ar: 'نطاق الدعم', fr: 'Portee du support', en: 'Support Scope' },
+  'الدعم يغطي مشاكل التسجيل، الدخول، الاشتراكات، الأداء الفني، والإعدادات العامة للحساب.': { ar: 'الدعم يغطي مشاكل التسجيل، الدخول، الاشتراكات، الأداء الفني، والإعدادات العامة للحساب.', fr: 'Le support couvre les problemes d inscription, de connexion, d abonnements, de performance technique et de parametres generaux du compte.', en: 'Support covers registration, login, subscription, technical performance, and general account settings issues.' },
+  'الدعم لا يقدم توصيات تداول شخصية، ولا استشارات قانونية أو ضريبية أو استثمارية ملزمة.': { ar: 'الدعم لا يقدم توصيات تداول شخصية، ولا استشارات قانونية أو ضريبية أو استثمارية ملزمة.', fr: 'Le support ne fournit pas de recommandations de trading personnelles ni de conseils juridiques, fiscaux ou d investissement contraignants.', en: 'Support does not provide personal trading recommendations or binding legal, tax, or investment advice.' },
+  'يتم التعامل مع البلاغات وفق أولوية الحالة ومدى تأثيرها على الاستخدام.': { ar: 'يتم التعامل مع البلاغات وفق أولوية الحالة ومدى تأثيرها على الاستخدام.', fr: 'Les signalements sont traites selon la priorite du cas et son impact sur l utilisation.', en: 'Reports are handled according to case priority and impact on usage.' },
+  'الاستجابة والتصعيد': { ar: 'الاستجابة والتصعيد', fr: 'Reponse et escalation', en: 'Response and Escalation' },
+  'يتم السعي للرد الأولي خلال يوم عمل، وقد تختلف المدة حسب حجم الطلبات.': { ar: 'يتم السعي للرد الأولي خلال يوم عمل، وقد تختلف المدة حسب حجم الطلبات.', fr: 'Une premiere reponse est visee sous un jour ouvrable, mais le delai peut varier selon le volume des demandes.', en: 'Initial response is targeted within one business day, though timing may vary with request volume.' },
+  'يرجى تزويد فريق الدعم بمعلومات دقيقة (نوع الجهاز، رقم الإصدار، وصف الخطأ) لتسريع الحل.': { ar: 'يرجى تزويد فريق الدعم بمعلومات دقيقة (نوع الجهاز، رقم الإصدار، وصف الخطأ) لتسريع الحل.', fr: 'Veuillez fournir a l equipe support des informations precises (type d appareil, numero de version, description de l erreur) pour accelerer la resolution.', en: 'Please provide support with accurate details (device type, version number, error description) to speed up resolution.' },
+  'الحالات الحرجة يتم تصعيدها للفريق المختص مع متابعة دورية حتى الإغلاق.': { ar: 'الحالات الحرجة يتم تصعيدها للفريق المختص مع متابعة دورية حتى الإغلاق.', fr: 'Les cas critiques sont escalades a l equipe specialisee avec un suivi periodique jusqu a cloture.', en: 'Critical cases are escalated to the specialist team with periodic follow-up until closure.' },
+  'استخدام قنوات الدعم يعني الموافقة على حفظ سجل المحادثة لأغراض الجودة والامتثال وتحسين الخدمة.': { ar: 'استخدام قنوات الدعم يعني الموافقة على حفظ سجل المحادثة لأغراض الجودة والامتثال وتحسين الخدمة.', fr: 'L utilisation des canaux de support implique l acceptation de la conservation des echanges pour la qualite, la conformite et l amelioration du service.', en: 'Using support channels means agreeing to keep conversation records for quality, compliance, and service improvement.' },
+  'استكشف المميزات': { ar: 'استكشف المميزات', fr: 'Explorer les fonctionnalites', en: 'Explore Features' },
+  'SIGNALS': { ar: 'الإشارات', fr: 'SIGNAUX', en: 'SIGNALS' },
+  'Signals AI': { ar: 'إشارات AI', fr: 'Signaux IA', en: 'AI Signals' },
+  'Fast Trade': { ar: 'تداول سريع', fr: 'Trade rapide', en: 'Fast Trade' },
+  'LIVE': { ar: 'مباشر', fr: 'EN DIRECT', en: 'LIVE' },
+  'ENTRY PRICE': { ar: 'سعر الدخول', fr: 'PRIX ENTREE', en: 'ENTRY PRICE' },
+  'TAKE PROFIT': { ar: 'جني الربح', fr: 'PRISE PROFIT', en: 'TAKE PROFIT' },
+  'STOP LOSS': { ar: 'وقف الخسارة', fr: 'STOP LOSS', en: 'STOP LOSS' },
+  'SELL': { ar: 'بيع', fr: 'VENTE', en: 'SELL' },
+  'BUY': { ar: 'شراء', fr: 'ACHAT', en: 'BUY' },
+  'Binary Signals': { ar: 'إشارات ثنائية', fr: 'Signaux binaires', en: 'Binary Signals' },
+  'BINARY': { ar: 'ثنائي', fr: 'BINAIRE', en: 'BINARY' },
+  'VIP ECOSYSTEM': { ar: 'منظومة VIP', fr: 'ECOSYSTEME VIP', en: 'VIP ECOSYSTEM' },
+  'ISO 27001 Mindset': { ar: 'منهجية ISO 27001', fr: 'Approche ISO 27001', en: 'ISO 27001 Mindset' },
+  'GDPR-Ready': { ar: 'متوافق مع GDPR', fr: 'Pret GDPR', en: 'GDPR-Ready' },
+  'KYC/AML Flow': { ar: 'تدفق KYC/AML', fr: 'Flux KYC/AML', en: 'KYC/AML Flow' },
+  '99.99% Uptime': { ar: 'جاهزية 99.99%', fr: 'Disponibilite 99.99%', en: '99.99% Uptime' },
+  'Forex': { ar: 'فوركس', fr: 'Forex', en: 'Forex' },
+  'Crypto': { ar: 'عملات رقمية', fr: 'Crypto', en: 'Crypto' },
+  'Commodities': { ar: 'سلع', fr: 'Matieres premieres', en: 'Commodities' },
+  'Indices': { ar: 'مؤشرات', fr: 'Indices', en: 'Indices' },
+  'Compliance-Ready': { ar: 'جاهز للامتثال', fr: 'Pret a la conformite', en: 'Compliance-Ready' },
+  '24/7 Support': { ar: 'دعم 24/7', fr: 'Support 24/7', en: '24/7 Support' },
+  'Secure Infra': { ar: 'بنية آمنة', fr: 'Infrastructure securisee', en: 'Secure Infra' }
+};
+
+const ATTR_TRANSLATIONS = [
+  {
+    selector: 'title',
+    attr: 'text',
+    ar: 'Trade Hub | منصة تداول ذكية بمعايير عالمية',
+    fr: 'Trade Hub | Plateforme de trading intelligente aux standards mondiaux',
+    en: 'Trade Hub | Smart Trading Platform with Global Standards'
+  },
+  {
+    selector: 'meta[name="description"]',
+    attr: 'content',
+    ar: 'Trade Hub منصة تداول ذكية بواجهة عربية: إشارات لحظية، تحليل متعدد الأسواق، إدارة مخاطر دقيقة.',
+    fr: 'Trade Hub, plateforme de trading intelligente: signaux en temps reel, analyse multi-marches et gestion des risques precise.',
+    en: 'Trade Hub is a smart trading platform: real-time signals, multi-market analysis, and precise risk management.'
+  },
+  {
+    selector: '#main-nav',
+    attr: 'aria-label',
+    ar: 'القائمة الرئيسية',
+    fr: 'Navigation principale',
+    en: 'Main navigation'
+  },
+  {
+    selector: '.lang-switcher',
+    attr: 'aria-label',
+    ar: 'اختيار اللغة',
+    fr: 'Choisir la langue',
+    en: 'Select language'
+  },
+  {
+    selector: '.phones-wrap',
+    attr: 'aria-label',
+    ar: 'شاشات التطبيق',
+    fr: "Ecrans de l'application",
+    en: 'App screens'
+  },
+  {
+    selector: '.p-tabs[aria-label]',
+    attr: 'aria-label',
+    ar: 'أوضاع الإشارات',
+    fr: 'Modes de signaux',
+    en: 'Signal modes'
+  },
+  {
+    selector: '.ph-prev',
+    attr: 'aria-label',
+    ar: 'الهاتف السابق',
+    fr: 'Telephone precedent',
+    en: 'Previous phone'
+  },
+  {
+    selector: '.ph-next',
+    attr: 'aria-label',
+    ar: 'الهاتف التالي',
+    fr: 'Telephone suivant',
+    en: 'Next phone'
+  },
+  {
+    selector: '.mob-dock',
+    attr: 'aria-label',
+    ar: 'روابط سريعة',
+    fr: 'Liens rapides',
+    en: 'Quick links'
+  },
+  {
+    selector: '.track-chart-wrap',
+    attr: 'aria-label',
+    ar: 'منحنى تصاعدي للأداء خلال آخر 30 يوم',
+    fr: 'Courbe de performance haussiere sur les 30 derniers jours',
+    en: 'Upward performance curve over the last 30 days'
+  },
+  {
+    selector: '.desk-float-dl',
+    attr: 'aria-label',
+    ar: 'تحميل التطبيق',
+    fr: "Telecharger l'application",
+    en: 'Download App'
+  },
+  {
+    selector: '.hero-copy h1',
+    attr: 'html',
+    ar: 'اتخذ قرارك أسرع مع <em>Trade Hub</em>',
+    fr: 'Prenez des decisions plus rapides avec <em>Trade Hub</em> et ouvrez votre trading au monde',
+    en: 'Make Faster Decisions with <em>Trade Hub</em> and Take Your Trading Global'
+  },
+  {
+    selector: '.lang-btn[data-lang="ar"]',
+    attr: 'aria-label',
+    ar: 'العربية',
+    fr: 'Arabe',
+    en: 'Arabic'
+  },
+  {
+    selector: '.lang-btn[data-lang="ar"]',
+    attr: 'title',
+    ar: 'العربية',
+    fr: 'Arabe',
+    en: 'Arabic'
+  },
+  {
+    selector: '.lang-btn[data-lang="fr"]',
+    attr: 'aria-label',
+    ar: 'الفرنسية',
+    fr: 'Francais',
+    en: 'French'
+  },
+  {
+    selector: '.lang-btn[data-lang="fr"]',
+    attr: 'title',
+    ar: 'الفرنسية',
+    fr: 'Francais',
+    en: 'French'
+  },
+  {
+    selector: '.lang-btn[data-lang="en"]',
+    attr: 'aria-label',
+    ar: 'الإنجليزية',
+    fr: 'Anglais',
+    en: 'English'
+  },
+  {
+    selector: '.lang-btn[data-lang="en"]',
+    attr: 'title',
+    ar: 'الإنجليزية',
+    fr: 'Anglais',
+    en: 'English'
+  }
+];
+
+const normalizeText = value => value.replace(/\s+/g, ' ').trim();
+const getI18nKey = value => {
+  const normalized = normalizeText(value);
+  if (normalized.startsWith('"') && normalized.endsWith('"')) {
+    return normalized.slice(1, -1);
+  }
+  return normalized;
+};
+
+const translatableTextNodes = [];
+const textWalker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+  acceptNode(node) {
+    if (!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+    const parent = node.parentElement;
+    if (!parent || parent.closest('script,style,noscript')) return NodeFilter.FILTER_REJECT;
+    const key = getI18nKey(node.nodeValue);
+    return TEXT_TRANSLATIONS[key] ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+  }
+});
+
+while (textWalker.nextNode()) {
+  const node = textWalker.currentNode;
+  translatableTextNodes.push({
+    node,
+    key: getI18nKey(node.nodeValue),
+    raw: node.nodeValue
+  });
+}
+
+const applyTextTranslations = lang => {
+  translatableTextNodes.forEach(entry => {
+    const dictionary = TEXT_TRANSLATIONS[entry.key];
+    if (!dictionary) return;
+    const translated = dictionary[lang] || dictionary.ar || entry.key;
+    const leading = entry.raw.match(/^\s*/)[0];
+    const trailing = entry.raw.match(/\s*$/)[0];
+    entry.node.nodeValue = `${leading}${translated}${trailing}`;
+  });
+};
+
+const applyAttrTranslations = lang => {
+  ATTR_TRANSLATIONS.forEach(item => {
+    const value = item[lang] || item.ar;
+    if (!value) return;
+    document.querySelectorAll(item.selector).forEach(el => {
+      if (item.attr === 'text') el.textContent = value;
+      else if (item.attr === 'html') el.innerHTML = value;
+      else el.setAttribute(item.attr, value);
+    });
+  });
+
+  const closeLabel = CLOSE_LABEL_BY_LANG[lang] || CLOSE_LABEL_BY_LANG.ar;
+  document.querySelectorAll('[data-modal-close]').forEach(btn => {
+    btn.setAttribute('aria-label', closeLabel);
+  });
+};
+
+const syncCountrySuffix = lang => {
+  const countryStat = document.querySelector('.stat-num[data-target="42"]');
+  if (!countryStat) return;
+  const suffix = COUNTRY_SUFFIX_BY_LANG[lang] || COUNTRY_SUFFIX_BY_LANG.ar;
+  countryStat.dataset.suffix = suffix;
+
+  const target = countryStat.dataset.target;
+  if (!target) return;
+  const digits = countryStat.textContent.replace(/[^\d\u0660-\u0669]/g, '');
+  if (digits) countryStat.textContent = `${digits}${suffix}`;
+};
+
+const langButtons = Array.from(document.querySelectorAll('.lang-btn[data-lang]'));
+const setActiveLangButton = lang => {
+  langButtons.forEach(btn => {
+    const isActive = btn.dataset.lang === lang;
+    btn.classList.toggle('is-active', isActive);
+    btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+  });
+};
+
+const syncPhoneArrowDirection = lang => {
+  const prevIcon = document.querySelector('.ph-prev i');
+  const nextIcon = document.querySelector('.ph-next i');
+  if (!prevIcon || !nextIcon) return;
+  if (lang === 'ar') {
+    prevIcon.className = 'fa-solid fa-chevron-right';
+    nextIcon.className = 'fa-solid fa-chevron-left';
+    return;
+  }
+  prevIcon.className = 'fa-solid fa-chevron-left';
+  nextIcon.className = 'fa-solid fa-chevron-right';
+};
+
+const setLanguage = lang => {
+  const nextLang = SUPPORTED_LANGS.includes(lang) ? lang : 'ar';
+
+  document.documentElement.lang = nextLang;
+  document.documentElement.dir = DIR_BY_LANG[nextLang] || 'ltr';
+
+  activeTZLocale = TZ_LOCALE_BY_LANG[nextLang] || TZ_LOCALE_BY_LANG.ar;
+  rebuildTZFormatters();
+  updateTZ();
+
+  applyTextTranslations(nextLang);
+  applyAttrTranslations(nextLang);
+  syncCountrySuffix(nextLang);
+  setActiveLangButton(nextLang);
+  syncPhoneArrowDirection(nextLang);
+
+  try {
+    localStorage.setItem(LANG_STORAGE_KEY, nextLang);
+  } catch (e) {
+    // Ignore storage errors in private browsing modes.
+  }
+};
+
+langButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    setLanguage(btn.dataset.lang || 'ar');
+  });
+});
+
+let initialLang = 'ar';
+if (langButtons.length > 0) {
+  try {
+    const savedLang = localStorage.getItem(LANG_STORAGE_KEY);
+    if (SUPPORTED_LANGS.includes(savedLang)) initialLang = savedLang;
+  } catch (e) {
+    initialLang = 'ar';
+  }
+} else {
+  try {
+    localStorage.removeItem(LANG_STORAGE_KEY);
+  } catch (e) {
+    // Ignore storage errors in private browsing modes.
+  }
+}
+setLanguage(initialLang);
+
+/* year */
+const yr = document.getElementById('yr');
+if(yr) yr.textContent = new Date().getFullYear();
+
+/* footer modals */
+const modalTriggers = document.querySelectorAll('[data-modal-target]');
+const modalOverlays = document.querySelectorAll('.modal-overlay');
+
+const closeModal = modal => {
+  if(!modal) return;
+  modal.classList.remove('is-open');
+  modal.setAttribute('aria-hidden', 'true');
+  const hasOpenModal = document.querySelector('.modal-overlay.is-open');
+  if(!hasOpenModal) document.body.classList.remove('modal-open');
+};
+
+const openModal = modal => {
+  if(!modal) return;
+  modalOverlays.forEach(m => {
+    m.classList.remove('is-open');
+    m.setAttribute('aria-hidden', 'true');
+  });
+  modal.classList.add('is-open');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('modal-open');
+  const closeBtn = modal.querySelector('[data-modal-close]');
+  if(closeBtn) closeBtn.focus({ preventScroll: true });
+};
+
+modalTriggers.forEach(trigger => {
+  trigger.addEventListener('click', e => {
+    e.preventDefault();
+    const targetId = trigger.getAttribute('data-modal-target');
+    openModal(document.getElementById(targetId));
+  });
+});
+
+modalOverlays.forEach(modal => {
+  modal.addEventListener('click', e => {
+    if(e.target === modal || e.target.closest('[data-modal-close]')) {
+      closeModal(modal);
+    }
+  });
+});
+
+document.addEventListener('keydown', e => {
+  if(e.key !== 'Escape') return;
+  const activeModal = document.querySelector('.modal-overlay.is-open');
+  if(activeModal) closeModal(activeModal);
+});
+
+/* phones showcase */
+const phones = [
+  document.getElementById('ph-left'),
+  document.getElementById('ph-center'),
+  document.getElementById('ph-right'),
+];
+let cur = 0; // center is active
+
+const applyState = () => {
+  // positions relative to cur
+  phones.forEach((ph, i) => {
+    ph.className = 'ph';
+    const diff = i - cur;
+    if(diff === 0) ph.classList.add('ph-c');
+    else if(diff === -1 || diff === 2) ph.classList.add('ph-l');
+    else ph.classList.add('ph-r');
+    ph.setAttribute('aria-hidden', diff !== 0 ? 'true' : 'false');
+  });
+};
+
+document.querySelector('.ph-prev').addEventListener('click', () => {
+  cur = (cur - 1 + phones.length) % phones.length;
+  applyState();
+});
+document.querySelector('.ph-next').addEventListener('click', () => {
+  cur = (cur + 1) % phones.length;
+  applyState();
+});
+
+// click side phones to bring to center
+phones.forEach((ph, i) => {
+  ph.addEventListener('click', () => { if(i !== cur){ cur = i; applyState(); } });
+});
+
+applyState();
+
+/* Disable Copy & Save */
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('copy', e => e.preventDefault());
+document.addEventListener('cut', e => e.preventDefault());
+document.addEventListener('dragstart', e => {
+  if (e.target.tagName.toLowerCase() === 'img') e.preventDefault();
+});
+document.addEventListener('keydown', e => {
+  if (
+    e.key === 'F12' ||
+    (e.ctrlKey && ['c', 'a', 's', 'p', 'u'].includes(e.key.toLowerCase())) ||
+    (e.ctrlKey && e.shiftKey && ['i', 'j', 'c'].includes(e.key.toLowerCase())) ||
+    (e.metaKey && ['c', 'a', 's', 'p', 'u'].includes(e.key.toLowerCase())) ||
+    (e.metaKey && e.shiftKey && ['i', 'j', 'c'].includes(e.key.toLowerCase()))
+  ) {
+    e.preventDefault();
+  }
+});
+document.querySelectorAll('img').forEach(img => img.setAttribute('draggable', 'false'));
+
+/* ─── INTERACTIVE VIDEO GUIDE · GSAP ─────────── */
+(function () {
+  'use strict';
+  if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+  gsap.registerPlugin(ScrollTrigger);
+
+  const secHd    = document.querySelector('#video-guide .sec-hd');
+  const infoTags = document.querySelectorAll('.video-info-tag');
+  const videoCard= document.querySelector('.video-card');
+
+  /* heading fades down */
+  if (secHd) {
+    gsap.fromTo(secHd,
+      { opacity: 0, y: -28 },
+      { opacity: 1, y: 0, duration: 0.75, ease: 'power2.out',
+        scrollTrigger: { trigger: secHd, start: 'top 86%', toggleActions: 'play none none none' }
+      }
+    );
+  }
+
+  /* info tags pop in with stagger */
+  if (infoTags.length) {
+    gsap.fromTo(infoTags,
+      { opacity: 0, y: 16, scale: 0.9 },
+      { opacity: 1, y: 0, scale: 1, duration: 0.45, stagger: 0.07, ease: 'back.out(1.4)',
+        scrollTrigger: { trigger: infoTags[0].closest('.video-info-row'), start: 'top 88%', toggleActions: 'play none none none' }
+      }
+    );
+  }
+
+  /* video card slides up elegantly */
+  if (videoCard) {
+    gsap.fromTo(videoCard,
+      { opacity: 0, y: 80, scale: 0.96 },
+      { opacity: 1, y: 0, scale: 1, duration: 1, ease: 'power3.out',
+        scrollTrigger: { trigger: videoCard, start: 'top 83%', toggleActions: 'play none none none' }
+      }
+    );
+  }
+}());
+</script>
+</body>
+</html>
