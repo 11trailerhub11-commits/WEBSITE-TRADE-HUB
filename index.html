@@ -3303,6 +3303,26 @@ const syncPhoneArrowDirection = lang => {
   nextIcon.className = 'fa-solid fa-chevron-right';
 };
 
+const APP_DOWNLOAD_URL = 'https://github.com/11trailerhub11-commits/WEBSITE-TRADE-HUB/releases/download/TRAD/Trade.Hub_v1.apk';
+const syncDownloadLinks = () => {
+  const selectors = [
+    '.header-cta',
+    '.hero-btns .btn-primary',
+    '.hero-btns-mob .btn-primary',
+    '.btn-dl',
+    '.dock-dl',
+    '.desk-float-dl'
+  ];
+
+  selectors.forEach(selector => {
+    document.querySelectorAll(selector).forEach(link => {
+      if (link.getAttribute('href') !== APP_DOWNLOAD_URL) {
+        link.setAttribute('href', APP_DOWNLOAD_URL);
+      }
+    });
+  });
+};
+
 const setLanguage = lang => {
   const nextLang = SUPPORTED_LANGS.includes(lang) ? lang : 'ar';
 
@@ -3315,6 +3335,7 @@ const setLanguage = lang => {
 
   applyTextTranslations(nextLang);
   applyAttrTranslations(nextLang);
+  syncDownloadLinks();
   syncCountrySuffix(nextLang);
   setActiveLangButton(nextLang);
   syncPhoneArrowDirection(nextLang);
